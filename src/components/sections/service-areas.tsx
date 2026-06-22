@@ -9,8 +9,15 @@ const suburbs = [
 
 export default function ServiceAreas() {
   return (
-    <section className="py-16 bg-white w-full">
-      <div className="max-w-5xl mx-auto px-4">
+    <section className="relative py-16 bg-white w-full overflow-hidden">
+      {/* ── Truck background image ── */}
+      <img
+        src="/truck-special-model-image-no-background.png"
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none select-none absolute inset-0 w-full h-full object-contain opacity-[0.12]"
+      />
+      <div className="relative z-10 max-w-5xl mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-[#011936] mb-6">Areas We Service Across Melbourne</h2>
           <div className="max-w-4xl mx-auto text-gray-700 space-y-4 text-base md:text-lg leading-relaxed">
