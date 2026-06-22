@@ -56,8 +56,8 @@ const cardPositions = [
 
 /* ── Scroll thresholds for card groups ── */
 const groupThresholds = [
-  { start: 0.25, cards: [0, 1] },  // right cards
-  { start: 0.52, cards: [2, 3] },  // left cards
+  { start: 0.25, cards: [0, 1] },  // right cards appear
+  { start: 0.52, cards: [2, 3] },  // left cards appear
   { start: 0.76, cards: [4] },     // center card
 ];
 
@@ -108,14 +108,14 @@ export default function ServicesSection() {
         headerRef.current.style.transform = `translateY(${lerp(0, -40, p / 0.1)}px)`;
       }
 
-      /* ── Truck X: center → LEFT (half distance: -16%) → RIGHT (+16%) ── */
+      /* ── Truck X: center → LEFT (-16%) → RIGHT (+24%) ── */
       let tx = 0;
       if (p < 0.22) tx = 0;
       else if (p < 0.48) tx = lerp(0, -16, (p - 0.22) / 0.26);
-      else if (p < 0.72) tx = lerp(-16, 16, (p - 0.48) / 0.24);
-      else tx = 16;
+      else if (p < 0.72) tx = lerp(-16, 24, (p - 0.48) / 0.24);
+      else tx = 24;
 
-      /* ── Truck scale: 1 → 0.7 ── */
+      /* ── Truck scale ── */
       let sc = 1;
       if (p < 0.22) sc = 1;
       else if (p < 0.48) sc = lerp(1, 0.7, (p - 0.22) / 0.26);
@@ -124,7 +124,7 @@ export default function ServicesSection() {
       if (canvasRef.current)
         canvasRef.current.style.transform = `translateX(${tx}%) scale(${sc})`;
 
-      /* ── Truck rotation — smooth continuous ── */
+      /* ── Truck rotation ── */
       if (p < 0.22) {
         scrollStore.truckRotationY = Math.PI * 0.3;
       } else if (p < 0.48) {
@@ -135,7 +135,7 @@ export default function ServicesSection() {
         scrollStore.truckRotationY = -Math.PI * 0.3;
       }
 
-      /* ── Timeline visibility ── */
+      /* ── Timeline ── */
       if (timelineRef.current) {
         const to = p < 0.20 ? 0 : Math.min(1, (p - 0.20) / 0.08);
         timelineRef.current.style.opacity = String(to);
@@ -145,27 +145,24 @@ export default function ServicesSection() {
         lineRef.current.style.transform = `scaleY(${lp})`;
       }
 
-      /* ── Card groups ── */
-      const isMovingRight = p >= 0.48;
+      /* ── Cards ── */
+      const isTruckMovingRight = p >= 0.48;
 
       for (const group of groupThresholds) {
         for (const ci of group.cards) {
           const el = cardRefs.current[ci];
           if (!el) continue;
-          const isLeftCard = cardPositions[ci].side === "left";
+          const isRightCard = cardPositions[ci].side === "right";
 
-          // Left cards fade out when truck moves right
-          if (isLeftCard && isMovingRight) {
-            const fadeOut = Math.min(1, (p - 0.48) / 0.06);
-            const currentOpacity = p > group.start
-              ? Math.min(1, (p - group.start) / 0.06)
-              : 0;
-            const opacity = Math.max(0, currentOpacity - fadeOut);
-            el.style.opacity = String(opacity);
-            el.style.transform = `translateY(${(1 - opacity) * 24}px)`;
+          // RIGHT cards fade out when truck moves right
+          if (isRightCard && isTruckMovingRight) {
+            const fadeOut = Math.min(1, (p - 0.48) / 0.08);
+            el.style.opacity = String(Math.max(0, 1 - fadeOut));
+            el.style.transform = `translateY(${fadeOut * 24}px)`;
             continue;
           }
 
+          // LEFT cards and CENTER card: fade in at their threshold
           const cp = p > group.start ? Math.min(1, (p - group.start) / 0.06) : 0;
           el.style.opacity = String(cp);
           el.style.transform = `translateY(${(1 - cp) * 24}px)`;
@@ -185,7 +182,7 @@ export default function ServicesSection() {
     <section
       ref={sectionRef}
       className="relative bg-white"
-      style={{ height: "450vh" }}
+      style={{ height: "400vh" }}
     >
       {/* ── Sticky viewport ── */}
       <div className="sticky top-0 h-screen overflow-hidden">
@@ -269,19 +266,16 @@ export default function ServicesSection() {
 
           {/* Service cards */}
           {services.map((s, i) => {
+            if (i === 4) return null; // rendered separately below
             const pos = cardPositions[i];
             const right = pos.side === "right";
-            const center = pos.side === "center";
 
             const posStyle: React.CSSProperties = {
               top: `${pos.top}%`,
               width: "max(280px, 24vw)",
               maxWidth: "360px",
             };
-            if (center) {
-              posStyle.left = "50%";
-              posStyle.transform = "translateX(-50%)";
-            } else if (right) {
+            if (right) {
               posStyle.left = "calc(50% + 50px)";
             } else {
               posStyle.right = "calc(50% + 50px)";
@@ -295,15 +289,11 @@ export default function ServicesSection() {
                   ref={(el) => { cardRefs.current[i] = el; }}
                   style={{ opacity: 0 }}
                 >
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-golden/10 flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-golden" />
-                    </div>
-                    <h3 className="text-base font-bold text-[#011936]">
-                      {s.title}
-                    </h3>
-                  </div>
-                  <p className="text-gray-400 text-sm leading-relaxed ml-[52px]">
+                  <h3 className="text-base font-bold text-[#011936] mb-2 flex items-center gap-2">
+                    <Icon className="w-5 h-5 text-[#011936]" />
+                    {s.title}
+                  </h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">
                     {s.desc}
                   </p>
                 </div>
@@ -311,7 +301,7 @@ export default function ServicesSection() {
             );
           })}
 
-          {/* Center card 5 — white background so timeline line overlaps cleanly */}
+          {/* Center card 5 — white background */}
           <div
             className="absolute"
             style={{
@@ -325,16 +315,11 @@ export default function ServicesSection() {
             <div
               ref={(el) => { cardRefs.current[4] = el; }}
               style={{ opacity: 0 }}
-            >
-              <div className="bg-white px-6 py-5">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 bg-golden/10 flex items-center justify-center">
-                    <Wrench className="w-5 h-5 text-golden" />
-                  </div>
-                  <h3 className="text-base font-bold text-[#011936]">
+            >                <div className="bg-white px-6 py-5">
+                  <h3 className="text-base font-bold text-[#011936] mb-2 flex items-center gap-2">
+                    <Wrench className="w-5 h-5 text-[#011936]" />
                     {services[4].title}
                   </h3>
-                </div>
                 <p className="text-gray-400 text-sm leading-relaxed ml-[52px]">
                   {services[4].desc}
                 </p>
