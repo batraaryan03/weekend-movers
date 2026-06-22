@@ -2,6 +2,21 @@
 
 import { Phone, Star } from "lucide-react";
 import QuickQuoteForm from "./quick-quote-form";
+import dynamic from "next/dynamic";
+
+const TruckScene = dynamic(() => import("@/components/three/truck-scene"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-10 h-10 border-3 border-[#FFB624] border-t-transparent rounded-full animate-spin" />
+        <p className="text-white/50 text-sm font-medium tracking-wide">
+          Loading 3D model...
+        </p>
+      </div>
+    </div>
+  ),
+});
 
 export default function HeroSection() {
   return (
@@ -11,14 +26,14 @@ export default function HeroSection() {
         <img
           src="/assets/hero-truck.png"
           alt="Weekend Movers Truck"
-          className="absolute inset-0 w-full h-full object-cover opacity-50"
+          className="absolute inset-0 w-full h-full object-cover opacity-30"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#011936] via-[#011936]/60 to-transparent" />
-        <div className="absolute inset-0 bg-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#011936] via-[#011936]/70 to-transparent" />
+        <div className="absolute inset-0 bg-black/20" />
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 relative z-10 w-full">
-        <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+      <div className="max-w-7xl mx-auto px-4 relative z-10 w-full">
+        <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-8">
           {/* Left content */}
           <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left gap-5">
             {/* Brand slogan */}
@@ -68,13 +83,26 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* Right — Quick Quote form */}
-          <div className="w-full lg:w-[380px]">
-            <div className="bg-white p-5 w-full border border-gray-100">
-              <h3 className="text-lg font-bold text-[#011936] mb-4 text-center">Get a Free Quote</h3>
-              <QuickQuoteForm />
-            </div>
+          {/* Right — 3D Truck Model */}
+          <div className="w-full lg:w-1/2 h-[350px] md:h-[450px] lg:h-[520px] relative">
+            <TruckScene />
           </div>
+        </div>
+      </div>
+
+      {/* Floating Quote Form — bottom center, visible on mobile */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 w-full max-w-md px-4 lg:hidden">
+        <div className="bg-white/95 backdrop-blur-sm p-4 w-full border border-gray-100 shadow-xl">
+          <h3 className="text-sm font-bold text-[#011936] mb-3 text-center">Get a Free Quote</h3>
+          <QuickQuoteForm />
+        </div>
+      </div>
+
+      {/* Floating Quote Form — desktop, bottom-right corner */}
+      <div className="absolute bottom-8 right-8 z-20 hidden lg:block w-[340px]">
+        <div className="bg-white/95 backdrop-blur-sm p-5 w-full border border-gray-100 shadow-2xl">
+          <h3 className="text-base font-bold text-[#011936] mb-3 text-center">Get a Free Quote</h3>
+          <QuickQuoteForm />
         </div>
       </div>
     </section>

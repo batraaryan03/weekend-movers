@@ -2,7 +2,8 @@ export const dynamic = "force-dynamic";
 
 import ScrollProgress from "@/components/scroll-progress";
 import Header from "@/components/sections/header";
-import HeroSection from "@/components/sections/hero-section";
+// import HeroSection from "@/components/sections/hero-section";
+import NewHeroSection from "@/components/sections/new-hero-section";
 import ReviewsMarquee from "@/components/sections/reviews-marquee";
 import CtaStrip from "@/components/sections/cta-strip";
 import BookingForm from "@/components/sections/booking-form";
@@ -23,8 +24,9 @@ export default function Home() {
       <ScrollProgress />
       <Header />
       <main className="flex-grow">
-        {/* Hero — no animation, visible immediately */}
-        <HeroSection />
+        {/* Hero — scroll-driven 3D truck reveal */}
+        {/* <HeroSection /> */}
+        <NewHeroSection />
 
         <ScrollReveal>
           <ReviewsMarquee />
