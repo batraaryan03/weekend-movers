@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -14,6 +14,7 @@ const row2 = galleryImages.slice(15, 30);
 
 export default function GallerySection() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const touchStartXRef = useRef<number>(0);
 
   const closeLightbox = useCallback(() => setLightboxIndex(null), []);
   const lbPrev = useCallback(() => {
@@ -26,6 +27,21 @@ export default function GallerySection() {
       i !== null ? (i + 1) % galleryImages.length : null
     );
   }, []);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartXRef.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      const diff = touchStartXRef.current - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) lbNext();
+        else lbPrev();
+      }
+    },
+    [lbNext, lbPrev]
+  );
 
   useEffect(() => {
     if (lightboxIndex === null) return;
@@ -59,9 +75,7 @@ export default function GallerySection() {
       <div className="group/row mb-4">
         <div
           className="flex gap-4 w-max"
-          style={{
-            animation: "wm-gallery-left 200s linear infinite",
-          }}
+          style={{ animation: "wm-gallery-left 200s linear infinite" }}
         >
           {[...row1, ...row1].map((src, i) => (
             <div
@@ -84,9 +98,7 @@ export default function GallerySection() {
       <div className="group/row">
         <div
           className="flex gap-4 w-max"
-          style={{
-            animation: "wm-gallery-right 240s linear infinite",
-          }}
+          style={{ animation: "wm-gallery-right 240s linear infinite" }}
         >
           {[...row2, ...row2].map((src, i) => (
             <div
@@ -107,7 +119,7 @@ export default function GallerySection() {
 
       {/* Pause on hover via CSS */}
       <style>{`
-        .group\/row:hover > div {
+        .group\\/row:hover > div {
           animation-play-state: paused;
         }
       `}</style>
@@ -116,9 +128,10 @@ export default function GallerySection() {
       {lightboxIndex !== null &&
         createPortal(
           <div
-            className="fixed inset-0 z-[200] bg-black/95 flex items-center justify-center"
+            className="fixed inset-0 z-200 bg-black/95 flex items-center justify-center"
             onClick={closeLightbox}
           >
+            {/* Close */}
             <button
               onClick={closeLightbox}
               className="absolute top-6 right-6 w-11 h-11 flex items-center justify-center text-white/70 hover:text-white transition-colors z-10"
@@ -127,31 +140,44 @@ export default function GallerySection() {
               <X className="w-6 h-6" />
             </button>
 
+            {/* Counter */}
             <div className="absolute top-6 left-6 text-white/50 text-sm font-medium tracking-wide z-10">
-              {String(lightboxIndex + 1).padStart(2, "0")} / {String(galleryImages.length).padStart(2, "0")}
+              {String(lightboxIndex + 1).padStart(2, "0")} /{" "}
+              {String(galleryImages.length).padStart(2, "0")}
             </div>
 
+            {/* Prev — larger touch target + semi-transparent bg on mobile */}
             <button
-              onClick={(e) => { e.stopPropagation(); lbPrev(); }}
-              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center text-white/60 hover:text-white transition-colors z-10"
+              onClick={(e) => {
+                e.stopPropagation();
+                lbPrev();
+              }}
+              className="absolute left-3 md:left-8 top-1/2 -translate-y-1/2 w-12 h-12 md:w-14 md:h-14 bg-white/20 md:bg-transparent flex items-center justify-center text-white hover:bg-white/30 transition-colors z-10"
               aria-label="Previous"
             >
-              <ChevronLeft className="w-8 h-8" />
+              <ChevronLeft className="w-7 h-7 md:w-8 md:h-8" />
             </button>
 
+            {/* Image — swipeable on mobile */}
             <img
               src={galleryImages[lightboxIndex]}
               alt={`Move ${lightboxIndex + 1}`}
-              className="max-w-[90vw] max-h-[85vh] object-contain select-none"
+              className="max-w-[85vw] md:max-w-[90vw] max-h-[80vh] md:max-h-[85vh] object-contain select-none"
               onClick={(e) => e.stopPropagation()}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
             />
 
+            {/* Next — larger touch target + semi-transparent bg on mobile */}
             <button
-              onClick={(e) => { e.stopPropagation(); lbNext(); }}
-              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center text-white/60 hover:text-white transition-colors z-10"
+              onClick={(e) => {
+                e.stopPropagation();
+                lbNext();
+              }}
+              className="absolute right-3 md:right-8 top-1/2 -translate-y-1/2 w-12 h-12 md:w-14 md:h-14 bg-white/20 md:bg-transparent flex items-center justify-center text-white hover:bg-white/30 transition-colors z-10"
               aria-label="Next"
             >
-              <ChevronRight className="w-8 h-8" />
+              <ChevronRight className="w-7 h-7 md:w-8 md:h-8" />
             </button>
           </div>,
           document.body
