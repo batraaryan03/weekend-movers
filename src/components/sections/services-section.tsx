@@ -373,11 +373,13 @@ function DesktopLayout() {
 }
 
 /* ═════════════════════════════════════════════ MOBILE LAYOUT ════════════════════ */
-function MobileLayout() {
+function MobileLayout({ serviceLayout = true, direction = "left" }: { serviceLayout?: boolean; direction?: "left" | "right" }) {
   const canvasRef = useRef<HTMLDivElement>(null);
 
+  const isRight = direction === "right";
+
   useEffect(() => {
-    scrollStore.truckRotationY = Math.PI * 0.2;
+    if(isRight) scrollStore.truckRotationY = Math.PI * 0.5;
 
     const handleScroll = () => {
       if (canvasRef.current) {
@@ -386,7 +388,11 @@ function MobileLayout() {
         const distFromCenter = (rect.top + rect.height / 1.5 - viewportCenter) / viewportCenter;
         const x = distFromCenter * 60;
         const y = -68;
-        canvasRef.current.style.transform = `translateX(${x}%) translateY(${y}%) scale(1)`;
+        if (isRight) {
+          canvasRef.current.style.transform = `translateX(${x}%) translateY(${y}%) scale(1)`;
+        } else {
+          canvasRef.current.style.transform = `translateX(${-x}%) translateY(${y}%) scale(1)`;
+        }
       }
     };
 
@@ -394,22 +400,26 @@ function MobileLayout() {
     handleScroll();
 
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isRight]);
 
   return (
-    <section className="relative bg-white mx-0 px-0" style={{ minHeight: "100vh" }}>
-      {/* Header */}
-      <div className="pt-10 pb-4 text-center px-4">
-        <p className="text-golden font-semibold text-xs uppercase tracking-[0.22em] mb-2">
-          What We Offer
-        </p>
-        <h2 className="text-3xl font-bold text-[#011936] mb-2">
-          Our Moving Services
-        </h2>
-        <p className="text-sm text-gray-500 max-w-xs mx-auto">
-          Comprehensive moving solutions tailored to your needs in Melbourne
-        </p>
-      </div>
+    <section className="relative bg-white mx-0 px-0" style={{ minHeight: serviceLayout ? "100vh" : "auto" }}>
+      {serviceLayout && (
+        <>
+          {/* Header */}
+          <div className="pt-10 pb-4 text-center px-4">
+            <p className="text-golden font-semibold text-xs uppercase tracking-[0.22em] mb-2">
+              What We Offer
+            </p>
+            <h2 className="text-3xl font-bold text-[#011936] mb-2">
+              Our Moving Services
+            </h2>
+            <p className="text-sm text-gray-500 max-w-xs mx-auto">
+              Comprehensive moving solutions tailored to your needs in Melbourne
+            </p>
+          </div>
+        </>
+      )}
 
       {/* 3D model – smaller on mobile */}
       <div
@@ -423,30 +433,39 @@ function MobileLayout() {
           height="200%"
           defaultZoom={1.75}
           enableAutoRotate={false}
-          enableTouchRotate
+          enableTouchRotate={false}
           enableMouseParallax={false}
         />
       </div>
 
-      {/* Service cards stacked vertically */}
-      <div className="px-4 pb-12 space-y-4 mx-0">
-        {services.map((s, i) => {
-          const Icon = s.icon;
-          return (
-            <div key={s.title} className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
-              <h3 className="text-sm font-bold text-[#011936] mb-1 flex items-center gap-2">
-                <Icon className="w-4 h-4 text-[#011936] shrink-0" />
-                {s.title}
-              </h3>
-              <p className="text-gray-400 text-xs leading-relaxed">
-                {s.desc}
-              </p>
-            </div>
-          );
-        })}
-      </div>
+      {serviceLayout && (
+        /* Service cards stacked vertically */
+        <div className="px-4 pb-12 space-y-4 mx-0">
+          {services.map((s, i) => {
+            const Icon = s.icon;
+            return (
+              <div key={s.title} className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
+                <h3 className="text-sm font-bold text-[#011936] mb-1 flex items-center gap-2">
+                  <Icon className="w-4 h-4 text-[#011936] shrink-0" />
+                  {s.title}
+                </h3>
+                <p className="text-gray-400 text-xs leading-relaxed">
+                  {s.desc}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </section>
   );
+}
+
+/* ── Mobile-only canvas with direction="right", no service cards ── */
+export function MobileCanvasRight() {
+  const isMobile = useMediaQuery("(max-width: 767px)");
+  if (!isMobile) return null;
+  return <MobileLayout serviceLayout={false} direction="right" />;
 }
 
 /* ═══════════════════════════════════════════════ EXPORT ════════════════════════ */
