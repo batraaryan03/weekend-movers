@@ -1,12 +1,16 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment } from "@react-three/drei";
-import * as THREE from "three";
-import { TruckModel } from "@/components/three/truck-model";
 import { Home, Building2, Briefcase, Package, Wrench } from "lucide-react";
+
+const ModelViewer = dynamic(() => import("@/components/three/model-viewer"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center bg-gray-50 rounded-2xl">
+      <div className="animate-pulse text-gray-400">Loading 3D model...</div>
+    </div>
+  ),
+});
 
 const services = [
   {
@@ -36,36 +40,6 @@ const services = [
   },
 ];
 
-/* ── Auto-rotating truck (smooth continuous spin) ── */
-function RotatingTruck() {
-  const groupRef = useRef<THREE.Group>(null);
-
-  useFrame((_, delta) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y += delta * 0.25;
-    }
-  });
-
-  return (
-    <group ref={groupRef} position={[0, -0.4, 0]} scale={1.75}>
-      <TruckModel />
-    </group>
-  );
-}
-
-/* ── 3D Scene ── */
-function Scene() {
-  return (
-    <>
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[5, 8, 5]} intensity={1.5} color="#ffffff" />
-      <directionalLight position={[-3, 5, -3]} intensity={0.4} color="#FFB624" />
-      <Environment preset="city" />
-      <RotatingTruck />
-    </>
-  );
-}
-
 export default function ServicesSection() {
   return (
     <section className="bg-white py-20 md:py-28">
@@ -83,23 +57,25 @@ export default function ServicesSection() {
           </p>
         </div>
 
-        {/* Main content: 3D truck left, cards right */}
+        {/* Main content: 3D model left, cards right */}
         <div className="flex flex-col md:flex-row items-center gap-12 md:gap-16">
-          {/* ── Left: Rotating 3D truck ── */}
+          {/* ── Left: Interactive 3D truck model ── */}
           <div className="w-full md:w-1/2 flex justify-center">
-            <div className="w-full max-w-lg h-[350px] md:h-[420px]">
-              <Canvas
-                camera={{ position: [0, 2, 6], fov: 32 }}
-                dpr={[1, 1.5]}
-                gl={{
-                  antialias: true,
-                  toneMapping: THREE.ACESFilmicToneMapping,
-                  toneMappingExposure: 1.1,
-                }}
-                style={{ background: "transparent" }}
-              >
-                <Scene />
-              </Canvas>
+            <div className="w-full max-w-lg">
+              <ModelViewer
+                url="/truck-special-model.glb"
+                width="100%"
+                height={450}
+                autoRotate
+                autoRotateSpeed={0.35}
+                environmentPreset="city"
+                defaultRotationX={-45}
+                defaultRotationY={20}
+                defaultZoom={0.7}
+                showScreenshotButton={false}
+                enableMouseParallax
+                enableHoverRotation
+              />
             </div>
           </div>
 
