@@ -79,9 +79,6 @@ function DesktopLayout() {
   const rightBranchRefs = useRef<(HTMLDivElement | null)[]>([]);
   const rightDotRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Cached values to avoid unnecessary invalidate() calls
-  const lastRotYRef = useRef(0);
-
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
@@ -111,37 +108,35 @@ function DesktopLayout() {
     function tick(p: number) {
       /* ── Truck X: center → LEFT (-16%) → RIGHT (+24%) ── */
       let tx: number;
-      if (p < 0.22) tx = 0;
-      else if (p < 0.48) tx = lerp(0, -16, (p - 0.22) / 0.26);
+      if (p < 0.05) tx = 0;
+      else if (p < 0.48) tx = lerp(0, -16, (p - 0.05) / 0.26);
       else if (p < 0.72) tx = lerp(-16, 24, (p - 0.48) / 0.24);
-      else tx = 24;
+      else tx = 29;
 
-      // Truck scale — constant, 25% larger than before (1.0 vs 0.8)
+      let ty: number;
+      if (p < 0.05) ty = 0;
+      else if (p < 0.48) ty = lerp(0, -10, (p - 0.05) / 0.26);
+      else if (p < 0.72) ty = lerp(-10, -10, (p - 0.48) / 0.24);
+      else ty = -10;
+
+      // Truck scale — constant, 25% larger
       if (canvasRef.current)
-        canvasRef.current.style.transform = `translateX(${tx}%) scale(1)`;
+        canvasRef.current.style.transform = `translateX(${tx}%) translateY(${ty}%) scale(1)`;
 
-      /* ── Truck rotation — smooth from 0° through to final ── */
+      /* ── Truck rotation — smooth from initial through to final ── */
       let rotY: number;
-      if (p < 0.22) {
-        // Initial: smoothly rotate from 0° to ~72° (facing right)
-        rotY = lerp(0, Math.PI * 0.4, p / 0.22);
+      if (p < 0.05) {
+        rotY = lerp(Math.PI, Math.PI, p / 0.05);
       } else if (p < 0.48) {
-        // Moving left: rotate slightly back toward camera
-        rotY = lerp(Math.PI * 0.4, Math.PI * 0.2, (p - 0.22) / 0.26);
+        rotY = lerp(Math.PI, Math.PI * 0.2, (p - 0.05 ) / 0.26);
       } else if (p < 0.72) {
-        // Moving right: swing past camera to face left
-        rotY = lerp(Math.PI * 0.2, -Math.PI * 0.4, (p - 0.48) / 0.24);
+        rotY = lerp(Math.PI * 0.2, -Math.PI * 0.3, (p - 0.48) / 0.24);
       } else {
-        // Final: facing left
         rotY = -Math.PI * 0.4;
       }
 
-      // Only invalidate if rotation actually changed (reduces Three.js render calls)
-      if (Math.abs(rotY - lastRotYRef.current) > 0.001) {
-        lastRotYRef.current = rotY;
-        scrollStore.truckRotationY = rotY;
-        invalidate();
-      }
+      scrollStore.truckRotationY = rotY;
+      invalidate();
 
       /* ── Header ── */
       if (headerRef.current) {
@@ -288,8 +283,6 @@ function MobileLayout({ isMobile, serviceLayout = true, direction = "left" }: { 
   const isRight = direction === "right";
 
   useEffect(() => {
-    if(isRight) scrollStore.truckRotationY = Math.PI * 0.5;
-
     const handleScroll = () => {
       if (canvasRef.current) {
         const rect = canvasRef.current.getBoundingClientRect();
