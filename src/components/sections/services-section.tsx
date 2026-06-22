@@ -73,6 +73,10 @@ export default function ServicesSection() {
   const timelineRef = useRef<HTMLDivElement>(null);
   const lineRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const leftBranchRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const leftDotRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const rightBranchRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const rightDotRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -147,12 +151,14 @@ export default function ServicesSection() {
 
       /* ── Cards ── */
       const isTruckMovingRight = p >= 0.48;
+      const leftDisappear = p >= 0.74 ? Math.min(1, (p - 0.74) / 0.06) : 0;
 
       for (const group of groupThresholds) {
         for (const ci of group.cards) {
           const el = cardRefs.current[ci];
           if (!el) continue;
           const isRightCard = cardPositions[ci].side === "right";
+          const isLeftCard = cardPositions[ci].side === "left";
 
           // RIGHT cards fade out when truck moves right
           if (isRightCard && isTruckMovingRight) {
@@ -162,11 +168,31 @@ export default function ServicesSection() {
             continue;
           }
 
-          // LEFT cards and CENTER card: fade in at their threshold
+          // Fade in at threshold, then fade out for left cards
           const cp = p > group.start ? Math.min(1, (p - group.start) / 0.06) : 0;
-          el.style.opacity = String(cp);
-          el.style.transform = `translateY(${(1 - cp) * 24}px)`;
+          const opacity = isLeftCard ? Math.max(0, cp - leftDisappear) : cp;
+          el.style.opacity = String(opacity);
+          el.style.transform = `translateY(${(1 - opacity) * 24}px)`;
         }
+      }
+
+      /* ── Right branch lines & dots fade out with right cards ── */
+      const rightFadeOut = isTruckMovingRight ? Math.min(1, (p - 0.48) / 0.08) : 0;
+      for (let j = 0; j < 2; j++) {
+        const rb = rightBranchRefs.current[j];
+        const rd = rightDotRefs.current[j];
+        const rv = String(Math.max(0, 1 - rightFadeOut));
+        if (rb) rb.style.opacity = rv;
+        if (rd) rd.style.opacity = rv;
+      }
+
+      /* ── Left branch lines & dots disappear with left cards ── */
+      for (let j = 0; j < 2; j++) {
+        const lb = leftBranchRefs.current[j];
+        const ld = leftDotRefs.current[j];
+        const lv = String(Math.max(0, 1 - leftDisappear));
+        if (lb) lb.style.opacity = lv;
+        if (ld) ld.style.opacity = lv;
       }
 
       invalidate();
@@ -233,25 +259,37 @@ export default function ServicesSection() {
           />
 
           {/* Dots */}
-          {cardPositions.map((pos, i) => (
-            <div
-              key={`d${i}`}
-              className="absolute w-3.5 h-3.5 bg-golden rounded-[2px] z-10"
-              style={{
-                top: `${pos.top}%`,
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-              }}
-            />
-          ))}
+          {cardPositions.map((pos, i) => {
+            const isLeft = pos.side === "left";
+            const isRight = pos.side === "right";
+            const leftIdx = isLeft ? (i === 2 ? 0 : 1) : -1;
+            const rightIdx = isRight ? (i === 0 ? 0 : 1) : -1;
+            return (
+              <div
+                key={`d${i}`}
+                ref={isLeft ? (el) => { leftDotRefs.current[leftIdx] = el; } : isRight ? (el) => { rightDotRefs.current[rightIdx] = el; } : undefined}
+                className="absolute w-3.5 h-3.5 bg-golden rounded-[2px] z-10"
+                style={{
+                  top: `${pos.top}%`,
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                }}
+              />
+            );
+          })}
 
           {/* Branch lines */}
           {cardPositions.map((pos, i) => {
             if (pos.side === "center") return null;
             const right = pos.side === "right";
+            const isLeft = pos.side === "left";
+            const isRight = pos.side === "right";
+            const leftIdx = isLeft ? (i === 2 ? 0 : 1) : -1;
+            const rightIdx = isRight ? (i === 0 ? 0 : 1) : -1;
             return (
               <div
                 key={`b${i}`}
+                ref={isLeft ? (el) => { leftBranchRefs.current[leftIdx] = el; } : isRight ? (el) => { rightBranchRefs.current[rightIdx] = el; } : undefined}
                 className="absolute h-[2px] bg-golden"
                 style={{
                   top: `${pos.top}%`,
