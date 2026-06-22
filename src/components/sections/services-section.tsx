@@ -403,7 +403,10 @@ function MobileLayout({ serviceLayout = true, direction = "left" }: { serviceLay
   }, [isRight]);
 
   return (
-    <section className="relative bg-white mx-0 px-0" style={{ minHeight: serviceLayout ? "100vh" : "auto" }}>
+    <section
+      className="relative bg-white mx-0 px-0"
+      style={{ minHeight: serviceLayout ? "100vh" : "auto" }}
+    >
       {serviceLayout && (
         <>
           {/* Header */}
@@ -435,6 +438,7 @@ function MobileLayout({ serviceLayout = true, direction = "left" }: { serviceLay
           enableAutoRotate={false}
           enableTouchRotate={false}
           enableMouseParallax={false}
+          fixedRotationY={isRight ? 0 : Math.PI}
         />
       </div>
 
@@ -444,7 +448,10 @@ function MobileLayout({ serviceLayout = true, direction = "left" }: { serviceLay
           {services.map((s, i) => {
             const Icon = s.icon;
             return (
-              <div key={s.title} className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
+              <div
+                key={s.title}
+                className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm"
+              >
                 <h3 className="text-sm font-bold text-[#011936] mb-1 flex items-center gap-2">
                   <Icon className="w-4 h-4 text-[#011936] shrink-0" />
                   {s.title}

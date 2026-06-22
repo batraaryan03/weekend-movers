@@ -19,6 +19,7 @@ export interface ViewerProps {
   enableAutoRotate?: boolean;
   autoRotateSpeed?: number;
   enableTouchRotate?: boolean;
+  fixedRotationY?: number;
 }
 
 const isTouch =
@@ -56,6 +57,7 @@ interface ModelInnerProps {
   enableAutoRotate?: boolean;
   autoRotateSpeed?: number;
   enableTouchRotate?: boolean;
+  fixedRotationY?: number;
 }
 
 const ModelInner: FC<ModelInnerProps> = ({
@@ -65,6 +67,7 @@ const ModelInner: FC<ModelInnerProps> = ({
   enableAutoRotate = false,
   autoRotateSpeed = 0.008,
   enableTouchRotate = false,
+  fixedRotationY,
 }) => {
   const outerRef = useRef<THREE.Group>(null!);
   const innerRef = useRef<THREE.Group>(null!);
@@ -172,8 +175,10 @@ const ModelInner: FC<ModelInnerProps> = ({
     ndc.y += cPar.current.y;
     g.position.copy(ndc.unproject(camera));
 
-    // Auto-rotate (mobile, when user is not dragging)
-    if (autoRotateRef.current && enableAutoRotate) {
+    // Fixed rotation overrides everything else
+    if (fixedRotationY !== undefined) {
+      g.rotation.y = fixedRotationY;
+    } else if (autoRotateRef.current && enableAutoRotate) {
       g.rotation.y += delta * autoRotateSpeed * 60;
       touchRef.current.rotY = g.rotation.y;
     } else if (!isTouch) {
@@ -215,6 +220,7 @@ const ModelViewer: FC<ViewerProps> = ({
   enableAutoRotate = false,
   autoRotateSpeed = 0.008,
   enableTouchRotate = false,
+  fixedRotationY,
 }) => {
   useGLTF.preload(url);
 
@@ -243,7 +249,7 @@ const ModelViewer: FC<ViewerProps> = ({
         <directionalLight position={[-5, 3, -5]} intensity={0.4} />
         <hemisphereLight args={["#b1e1ff", "#d4a574", 0.3]} />
 
-        <Suspense fallback={<Loader placeholderSrc={placeholderSrc} />}>
+          <Suspense fallback={<Loader placeholderSrc={placeholderSrc} />}>
           <ModelInner
             url={url}
             enableMouseParallax={enableMouseParallax}
@@ -251,6 +257,7 @@ const ModelViewer: FC<ViewerProps> = ({
             enableAutoRotate={enableAutoRotate}
             autoRotateSpeed={autoRotateSpeed}
             enableTouchRotate={enableTouchRotate}
+            fixedRotationY={fixedRotationY}
           />
         </Suspense>
       </Canvas>
