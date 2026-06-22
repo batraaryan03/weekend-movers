@@ -46,7 +46,7 @@ export default function ServicesSection() {
       <div className="max-w-6xl mx-auto px-4 md:px-8">
         {/* Section header */}
         <div className="text-center mb-16">
-          <p className="text-[#FFB624] font-semibold text-xs md:text-sm uppercase tracking-[0.22em] mb-3">
+          <p className="text-golden font-semibold text-xs md:text-sm uppercase tracking-[0.22em] mb-3">
             What We Offer
           </p>
           <h2 className="text-4xl md:text-5xl font-bold text-[#011936] mb-3">
@@ -65,12 +65,12 @@ export default function ServicesSection() {
               <ModelViewer
                 url="/truck-special-model.glb"
                 width="100%"
-                height={650}
+                height={550}
                 autoRotate
                 autoRotateSpeed={0.15}
                 defaultZoom={3}
-                
-                
+                enableHoverRotation={false}
+                enableMouseParallax={true}                
               />
             </div>
           </div>
@@ -80,9 +80,9 @@ export default function ServicesSection() {
             {services.map((s) => (
               <div
                 key={s.title}
-                className="group flex items-start gap-5 p-5 rounded-xl border border-gray-100 bg-white hover:border-[#FFB624]/30 hover:shadow-lg hover:shadow-[#FFB624]/5 transition-all duration-300 cursor-default"
+                className="group flex items-start gap-5 p-5 rounded-xl border border-gray-100 bg-white hover:border-golden/30 hover:shadow-lg hover:shadow-golden/5 transition-all duration-300 cursor-default"
               >
-                <div className="bg-[#FFB624]/10 group-hover:bg-[#FFB624] w-12 h-12 flex items-center justify-center flex-shrink-0 transition-colors duration-300">
+                <div className="bg-golden/10 group-hover:bg-golden w-12 h-12 flex items-center justify-center shrink-0 transition-colors duration-300">
                   <s.icon className="w-6 h-6 text-[#011936] group-hover:text-white transition-colors duration-300" />
                 </div>
                 <div>
