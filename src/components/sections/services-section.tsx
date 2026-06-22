@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { invalidate } from "@react-three/fiber";
 import { Home, Building2, Briefcase, Package, Wrench } from "lucide-react";
 import { scrollStore } from "@/lib/scroll-store";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 /* ── Lazy 3D viewer ── */
 const ModelViewer = dynamic(() => import("@/components/three/model-viewer"), {
@@ -45,7 +46,7 @@ const services = [
   },
 ];
 
-/* ── Card layout positions ── */
+/* ── Desktop: Card layout positions ── */
 const cardPositions = [
   { side: "right" as const, top: 28 },  // 1
   { side: "right" as const, top: 52 },  // 2
@@ -54,7 +55,7 @@ const cardPositions = [
   { side: "center" as const, top: 78 }, // 5
 ];
 
-/* ── Scroll thresholds for card groups ── */
+/* ── Desktop: Scroll thresholds for card groups ── */
 const groupThresholds = [
   { start: 0.25, cards: [0, 1] },  // right cards appear
   { start: 0.52, cards: [2, 3] },  // left cards appear
@@ -65,8 +66,8 @@ function lerp(a: number, b: number, t: number) {
   return a + (b - a) * Math.max(0, Math.min(1, t));
 }
 
-/* ════════════════════════════════════════════════════════ */
-export default function ServicesSection() {
+/* ════════════════════════════════════════════ DESKTOP LAYOUT ════════════════════ */
+function DesktopLayout() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -119,11 +120,11 @@ export default function ServicesSection() {
       else if (p < 0.72) tx = lerp(-16, 24, (p - 0.48) / 0.24);
       else tx = 24;
 
-      /* ── Truck scale ── */
-      let sc = 1;
-      if (p < 0.22) sc = 1;
-      else if (p < 0.48) sc = lerp(1, 0.7, (p - 0.22) / 0.26);
-      else sc = 0.7;
+      /* ── Truck scale — 20% smaller overall ── */
+      let sc = 0.8;
+      if (p < 0.22) sc = 0.8;
+      else if (p < 0.48) sc = lerp(0.8, 0.56, (p - 0.22) / 0.26);
+      else sc = 0.56;
 
       if (canvasRef.current)
         canvasRef.current.style.transform = `translateX(${tx}%) scale(${sc})`;
@@ -207,7 +208,7 @@ export default function ServicesSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative bg-white"
+      className="relative bg-white mx-0 px-0"
       style={{ height: "400vh" }}
     >
       {/* ── Sticky viewport ── */}
@@ -310,13 +311,13 @@ export default function ServicesSection() {
 
             const posStyle: React.CSSProperties = {
               top: `${pos.top}%`,
-              width: "max(280px, 24vw)",
-              maxWidth: "360px",
+              width: "clamp(220px, 20vw, 320px)",
+              maxWidth: "320px",
             };
             if (right) {
-              posStyle.left = "calc(50% + 50px)";
+              posStyle.left = "calc(50% + 42px)";
             } else {
-              posStyle.right = "calc(50% + 50px)";
+              posStyle.right = "calc(50% + 42px)";
             }
 
             const Icon = s.icon;
@@ -327,11 +328,11 @@ export default function ServicesSection() {
                   ref={(el) => { cardRefs.current[i] = el; }}
                   style={{ opacity: 0 }}
                 >
-                  <h3 className="text-base font-bold text-[#011936] mb-2 flex items-center gap-2">
-                    <Icon className="w-5 h-5 text-[#011936]" />
+                  <h3 className="text-sm font-bold text-[#011936] mb-1.5 flex items-center gap-1.5">
+                    <Icon className="w-4 h-4 text-[#011936]" />
                     {s.title}
                   </h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">
+                  <p className="text-gray-400 text-xs leading-relaxed">
                     {s.desc}
                   </p>
                 </div>
@@ -346,19 +347,20 @@ export default function ServicesSection() {
               top: "78%",
               left: "50%",
               transform: "translateX(-50%)",
-              width: "max(280px, 24vw)",
-              maxWidth: "360px",
+              width: "clamp(220px, 20vw, 320px)",
+              maxWidth: "320px",
             }}
           >
             <div
               ref={(el) => { cardRefs.current[4] = el; }}
               style={{ opacity: 0 }}
-            >                <div className="bg-white px-6 py-5">
-                  <h3 className="text-base font-bold text-[#011936] mb-2 flex items-center gap-2">
-                    <Wrench className="w-5 h-5 text-[#011936]" />
-                    {services[4].title}
-                  </h3>
-                <p className="text-gray-400 text-sm leading-relaxed ml-[52px]">
+            >
+              <div className="bg-white px-5 py-4 rounded">
+                <h3 className="text-sm font-bold text-[#011936] mb-1.5 flex items-center gap-1.5">
+                  <Wrench className="w-4 h-4 text-[#011936]" />
+                  {services[4].title}
+                </h3>
+                <p className="text-gray-400 text-xs leading-relaxed ml-[22px]">
                   {services[4].desc}
                 </p>
               </div>
@@ -368,4 +370,87 @@ export default function ServicesSection() {
       </div>
     </section>
   );
+}
+
+/* ═════════════════════════════════════════════ MOBILE LAYOUT ════════════════════ */
+function MobileLayout() {
+  const canvasRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    scrollStore.truckRotationY = Math.PI * 0.2;
+
+    const handleScroll = () => {
+      if (canvasRef.current) {
+        const rect = canvasRef.current.getBoundingClientRect();
+        const viewportCenter = window.innerHeight / 2;
+        const distFromCenter = (rect.top + rect.height / 1.5 - viewportCenter) / viewportCenter;
+        const x = distFromCenter * 60;
+        const y = -68;
+        canvasRef.current.style.transform = `translateX(${x}%) translateY(${y}%) scale(1)`;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <section className="relative bg-white mx-0 px-0" style={{ minHeight: "100vh" }}>
+      {/* Header */}
+      <div className="pt-10 pb-4 text-center px-4">
+        <p className="text-golden font-semibold text-xs uppercase tracking-[0.22em] mb-2">
+          What We Offer
+        </p>
+        <h2 className="text-3xl font-bold text-[#011936] mb-2">
+          Our Moving Services
+        </h2>
+        <p className="text-sm text-gray-500 max-w-xs mx-auto">
+          Comprehensive moving solutions tailored to your needs in Melbourne
+        </p>
+      </div>
+
+      {/* 3D model – smaller on mobile */}
+      <div
+        ref={canvasRef}
+        className="w-full h-[15vh] mx-0 px-0"
+        style={{ transformOrigin: "center center" }}
+      >
+        <ModelViewer
+          url="/truck-special-model.glb"
+          width="100%"
+          height="200%"
+          defaultZoom={1.75}
+          enableAutoRotate={false}
+          enableTouchRotate
+          enableMouseParallax={false}
+        />
+      </div>
+
+      {/* Service cards stacked vertically */}
+      <div className="px-4 pb-12 space-y-4 mx-0">
+        {services.map((s, i) => {
+          const Icon = s.icon;
+          return (
+            <div key={s.title} className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
+              <h3 className="text-sm font-bold text-[#011936] mb-1 flex items-center gap-2">
+                <Icon className="w-4 h-4 text-[#011936] shrink-0" />
+                {s.title}
+              </h3>
+              <p className="text-gray-400 text-xs leading-relaxed">
+                {s.desc}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════ EXPORT ════════════════════════ */
+export default function ServicesSection() {
+  const isMobile = useMediaQuery("(max-width: 767px)");
+  return isMobile ? <MobileLayout /> : <DesktopLayout />;
 }
