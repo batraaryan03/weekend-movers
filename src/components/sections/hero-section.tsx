@@ -39,10 +39,10 @@ export default function HeroSection() {
             {/* Brand slogan */}
             <div className="mb-2">
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-tight">
-                You Move.
+                Your Move.
               </h1>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-[#FFB624] tracking-tight leading-tight">
-                We Weekend.
+                Our Weekend.
               </h1>
             </div>
 

@@ -36,13 +36,13 @@ function ScrollDrivenTruck() {
     g.rotation.y = THREE.MathUtils.lerp(-Math.PI / 2, 0, p);
 
     // Subtle Z tilt during mid-rotation (peaks at p = 0.5)
-    g.rotation.z = Math.sin(p * Math.PI) * -0.04;
+    g.rotation.z = Math.sin(p * Math.PI) * -0.03;
 
     // Slight X drift — truck slides a little as it rotates
-    g.position.x = THREE.MathUtils.lerp(2.0, 0.6, p);
+    g.position.x = THREE.MathUtils.lerp(1.2, 0, p);
 
     // Gentle Y rise
-    g.position.y = THREE.MathUtils.lerp(-1.0, -0.5, p);
+    g.position.y = THREE.MathUtils.lerp(-1.8, -1.2, p);
   });
 
   return (
@@ -86,9 +86,9 @@ function Scene() {
       </TruckInstances>
 
       <ContactShadows
-        position={[0, -1.4, 0]}
-        opacity={0.25}
-        scale={16}
+        position={[0, -1.9, 0]}
+        opacity={0.2}
+        scale={14}
         blur={2.5}
         far={5}
         color="#011936"
@@ -104,6 +104,10 @@ function Scene() {
  * container.  The 3D canvas fills the viewport
  * while the extra 100vh provides scroll room
  * for the animation.
+ *
+ * Layout:
+ *   TOP    → centered text (eyebrow, headline, description, CTA)
+ *   BOTTOM → 3D truck model (smaller, centered)
  * ───────────────────────────────────────────── */
 export default function NewHeroSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -134,8 +138,8 @@ export default function NewHeroSection() {
         ? Math.max(0, (1 - progress) / 0.35)
         : 1;
 
-  // Slide from left (completes at 18 % scroll)
-  const slideX = Math.min(progress / 0.18, 1);
+  // Slide up (completes at 15 % scroll)
+  const slideUp = Math.min(progress / 0.15, 1);
 
   return (
     <section
@@ -143,32 +147,31 @@ export default function NewHeroSection() {
       className="relative h-[200vh] bg-white"
     >
       {/* Sticky viewport container */}
-      <div className="sticky top-0 h-screen overflow-hidden">
-        {/* ── Text overlay (left side) ── */}
-        <div className="absolute inset-0 z-10 flex items-center pointer-events-none">
-          <div className="max-w-6xl mx-auto px-6 md:px-10 w-full">
+      <div className="sticky top-0 h-screen overflow-hidden flex flex-col">
+        {/* ── Text — top center ── */}
+        <div className="flex-shrink-0 pt-16 md:pt-20 lg:pt-24 z-10">
+          <div className="max-w-4xl mx-auto px-6 text-center pointer-events-none">
             <div
               style={{
                 opacity: textOpacity,
-                transform: `translateX(${(1 - slideX) * -50}px)`,
+                transform: `translateY(${(1 - slideUp) * 30}px)`,
               }}
-              className="max-w-lg"
             >
               {/* Eyebrow */}
-              <p className="text-[#FFB624] font-semibold text-xs md:text-sm uppercase tracking-[0.22em] mb-3">
+              <p className="text-[#FFB624] font-semibold text-xs md:text-sm uppercase tracking-[0.22em] mb-4">
                 Melbourne&apos;s #1 Rated Movers
               </p>
 
               {/* Headlines */}
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-[#011936] tracking-tight leading-[1.08]">
-                You Move.
+                Your Move.
               </h1>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-[#FFB624] tracking-tight leading-[1.08]">
-                We Weekend.
+                Our Weekend.
               </h1>
 
               {/* Description */}
-              <p className="text-[#011936]/60 text-base md:text-lg lg:text-xl mt-5 max-w-md leading-relaxed">
+              <p className="text-[#011936]/60 text-base md:text-lg lg:text-xl mt-5 max-w-lg mx-auto leading-relaxed">
                 Melbourne&apos;s trusted local movers. Professional service,
                 transparent pricing, and weekend availability.
               </p>
@@ -185,20 +188,24 @@ export default function NewHeroSection() {
           </div>
         </div>
 
-        {/* ── 3D Canvas ── */}
-        <div className="absolute inset-0">
-          <Canvas
-            camera={{ position: [0, 2.5, 9], fov: 34 }}
-            dpr={[1, 2]}
-            gl={{
-              antialias: true,
-              toneMapping: THREE.ACESFilmicToneMapping,
-              toneMappingExposure: 1.2,
-            }}
-            style={{ background: "transparent" }}
-          >
-            <Scene />
-          </Canvas>
+        {/* ── 3D Truck — bottom center ── */}
+        <div className="flex-1 relative">
+          <div className="absolute inset-0 flex items-end justify-center pb-8">
+            <div className="w-full h-[45vh] md:h-[50vh]">
+              <Canvas
+                camera={{ position: [0, 3, 9], fov: 34 }}
+                dpr={[1, 2]}
+                gl={{
+                  antialias: true,
+                  toneMapping: THREE.ACESFilmicToneMapping,
+                  toneMappingExposure: 1.2,
+                }}
+                style={{ background: "transparent" }}
+              >
+                <Scene />
+              </Canvas>
+            </div>
+          </div>
         </div>
       </div>
     </section>
