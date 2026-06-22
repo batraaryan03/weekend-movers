@@ -61,8 +61,25 @@ export default function HeroSection() {
           </div>
         </div>
 
-        {/* ── Quote form — centered below text ── */}
-        <div className="max-w-md mx-auto">
+        {/* ── Video card — 16:9, centered, autoplay ── */}
+        <div className="max-w-8xl mx-auto mt-10 md:mt-12">
+          <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-xl border border-gray-200/60 bg-black">
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              className="absolute inset-0 w-full h-full object-cover"
+            >
+              <source src="/truck-video.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+        <div className="text-sm text-gray-400/50 italic">For illustration purposes</div>
+
+        {/* ── Quote form — centered below video ── */}
+        <div className="max-w-md mx-auto mt-10 md:mt-12">
           <div className="bg-[#f8f9fa] p-6 w-full border border-gray-200">
             <h3 className="text-lg font-bold text-[#011936] mb-4 text-center">Get a Free Quote</h3>
             <QuickQuoteForm />
