@@ -48,15 +48,18 @@ const services = [
 /* ── Layout per card ── */
 type Side = "left" | "right" | "center";
 const cardLayout: { side: Side; top: number }[] = [
-  { side: "right", top: 30 },  // 1
-  { side: "right", top: 52 },  // 2
-  { side: "left", top: 36 },   // 3
-  { side: "left", top: 58 },   // 4
-  { side: "center", top: 78 }, // 5
+  { side: "right", top: 32 },  // 1 — right group
+  { side: "right", top: 52 },  // 2 — right group
+  { side: "left", top: 32 },   // 3 — left group
+  { side: "left", top: 52 },   // 4 — left group
+  { side: "center", top: 76 }, // 5 — center
 ];
 
-// scroll-progress thresholds when each card fades in
-const cardAt = [0.28, 0.40, 0.52, 0.64, 0.78];
+// scroll-progress thresholds — cards appear in groups
+// Group 1 (right cards): both appear together at 0.30
+// Group 2 (left cards): both appear together at 0.55
+// Group 3 (center card): appears at 0.78
+const cardAt = [0.30, 0.30, 0.55, 0.55, 0.78];
 
 /* ── Helpers ── */
 function lerp(a: number, b: number, t: number) {
@@ -100,27 +103,23 @@ export default function ServicesSection() {
 
     /* ── called on every scroll tick ── */
     function tick(p: number) {
-      /* Truck X: center → left → right */
+      /* Truck X: center → slightly left → right */
       let tx = 0;
       if (p < 0.25) tx = 0;
-      else if (p < 0.50) tx = lerp(0, -38, (p - 0.25) / 0.25);
-      else if (p < 0.75) tx = lerp(-38, 38, (p - 0.50) / 0.25);
-      else tx = 38;
+      else if (p < 0.50) tx = lerp(0, -22, (p - 0.25) / 0.25);
+      else if (p < 0.75) tx = lerp(-22, 22, (p - 0.50) / 0.25);
+      else tx = 22;
 
-      /* Truck scale: 1 → 0.42 */
+      /* Truck scale: 1 → 0.7 */
       let sc = 1;
       if (p < 0.25) sc = 1;
-      else if (p < 0.50) sc = lerp(1, 0.42, (p - 0.25) / 0.25);
-      else sc = 0.42;
+      else if (p < 0.50) sc = lerp(1, 0.7, (p - 0.25) / 0.25);
+      else sc = 0.7;
 
-      /* Truck rotation via scrollStore */
-      if (p < 0.50) scrollStore.truckRotationY = Math.PI * 0.3;
-      else if (p < 0.75)
-        scrollStore.truckRotationY = lerp(
-          Math.PI * 0.3,
-          -Math.PI * 0.3,
-          (p - 0.5) / 0.25,
-        );
+      /* Truck rotation: starts rotating a little during phase 2, finishes in phase 3 */
+      if (p < 0.25) scrollStore.truckRotationY = Math.PI * 0.3;
+      else if (p < 0.50) scrollStore.truckRotationY = lerp(Math.PI * 0.3, Math.PI * 0.1, (p - 0.25) / 0.25);
+      else if (p < 0.75) scrollStore.truckRotationY = lerp(Math.PI * 0.1, -Math.PI * 0.3, (p - 0.50) / 0.25);
       else scrollStore.truckRotationY = -Math.PI * 0.3;
 
       /* Apply canvas transform */
