@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { CheckCircle, AlertCircle, Zap } from "lucide-react";
+import { CheckCircle, AlertCircle } from "lucide-react";
 
 export default function QuickQuoteForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -46,47 +46,44 @@ export default function QuickQuoteForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2">
-      <div className="grid grid-cols-2 gap-2">
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-xs font-medium text-gray-600">Name</label>
+          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Name</label>
           <input
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="John"
-            className="w-full border border-gray-200 bg-gray-50 px-2 py-1.5 text-sm focus:outline-none focus:border-[#FFB624]"
+            className="w-full border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:border-[#FFB624] mt-1"
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-gray-600">Phone</label>
+          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Phone</label>
           <input
             required
             value={formData.phone_number}
             onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
-            placeholder="0400..."
-            className="w-full border border-gray-200 bg-gray-50 px-2 py-1.5 text-sm focus:outline-none focus:border-[#FFB624]"
+            className="w-full border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:border-[#FFB624] mt-1"
           />
         </div>
       </div>
       <div>
-        <label className="text-xs font-medium text-gray-600">Email</label>
+        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Email</label>
         <input
           type="email"
           required
           value={formData.email}
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          placeholder="you@email.com"
-          className="w-full border border-gray-200 bg-gray-50 px-2 py-1.5 text-sm focus:outline-none focus:border-[#FFB624]"
+          className="w-full border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:border-[#FFB624] mt-1"
         />
       </div>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-xs font-medium text-gray-600">Type</label>
+          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Type</label>
           <select
             value={formData.move_type}
             onChange={(e) => setFormData({ ...formData, move_type: e.target.value })}
-            className="w-full border border-gray-200 bg-gray-50 px-2 py-1.5 text-sm focus:outline-none focus:border-[#FFB624]"
+            className="w-full border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:border-[#FFB624] mt-1"
           >
             <option>House</option>
             <option>Unit</option>
@@ -94,58 +91,48 @@ export default function QuickQuoteForm() {
           </select>
         </div>
         <div>
-          <label className="text-xs font-medium text-gray-600">Date</label>
+          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Date</label>
           <input
             type="date"
             value={formData.move_date}
             onChange={(e) => setFormData({ ...formData, move_date: e.target.value })}
-            className="w-full border border-gray-200 bg-gray-50 px-2 py-1.5 text-sm focus:outline-none focus:border-[#FFB624]"
+            className="w-full border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:border-[#FFB624] mt-1"
           />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-xs font-medium text-gray-600">From</label>
+          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">From</label>
           <input
             value={formData.from_suburb}
             onChange={(e) => setFormData({ ...formData, from_suburb: e.target.value })}
-            placeholder="Suburb"
-            className="w-full border border-gray-200 bg-gray-50 px-2 py-1.5 text-sm focus:outline-none focus:border-[#FFB624]"
+            className="w-full border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:border-[#FFB624] mt-1"
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-gray-600">To</label>
+          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">To</label>
           <input
             value={formData.to_suburb}
             onChange={(e) => setFormData({ ...formData, to_suburb: e.target.value })}
-            placeholder="Suburb"
-            className="w-full border border-gray-200 bg-gray-50 px-2 py-1.5 text-sm focus:outline-none focus:border-[#FFB624]"
+            className="w-full border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:border-[#FFB624] mt-1"
           />
         </div>
       </div>
       <div>
-        <label className="text-xs font-medium text-gray-600">Message (Optional)</label>
+        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Message (Optional)</label>
         <textarea
           value={formData.message}
           onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-          placeholder="Items, access details..."
           rows={2}
-          className="w-full border border-gray-200 bg-gray-50 px-2 py-1.5 text-xs resize-none focus:outline-none focus:border-[#FFB624]"
+          className="w-full border border-gray-200 bg-white px-3 py-2 text-xs resize-none focus:outline-none focus:border-[#FFB624] mt-1"
         />
       </div>
       <button
         type="submit"
         disabled={status === "loading"}
-        className="w-full bg-[#FFB624] text-[#011936] font-bold text-sm py-2.5 hover:bg-yellow-500 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+        className="w-full bg-[#FFB624] text-[#011936] font-bold text-sm py-2.5 hover:bg-yellow-500 transition-colors disabled:opacity-50"
       >
-        {status === "loading" ? (
-          "Sending..."
-        ) : (
-          <>
-            <Zap className="w-4 h-4" />
-            Get Quote
-          </>
-        )}
+        {status === "loading" ? "Sending..." : "Get My Free Quote"}
       </button>
       {status === "error" && (
         <p className="text-xs text-red-500 flex items-center gap-1">

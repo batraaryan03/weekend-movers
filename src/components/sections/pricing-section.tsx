@@ -1,6 +1,7 @@
 "use client";
 
 import { Check } from "lucide-react";
+import StaggerReveal from "@/components/stagger-reveal";
 
 const plans = [
   {
@@ -36,7 +37,7 @@ export default function PricingSection() {
             No hidden fees, no surprises. Choose the right truck size for your move. Prices are charged per hour with professional movers and full equipment included.
           </p>
         </div>
-        <div className="grid lg:grid-cols-3 gap-8 items-stretch">
+        <StaggerReveal className="grid lg:grid-cols-3 gap-8 items-stretch" stagger={0.15}>
           {plans.map((plan) => (
             <div
               key={plan.name}
@@ -73,7 +74,7 @@ export default function PricingSection() {
               </button>
             </div>
           ))}
-        </div>
+        </StaggerReveal>
       </div>
     </section>
   );

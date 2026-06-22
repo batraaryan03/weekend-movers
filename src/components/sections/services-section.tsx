@@ -1,6 +1,7 @@
 "use client";
 
 import { Home, Building2, Briefcase, Package, Wrench } from "lucide-react";
+import StaggerReveal from "@/components/stagger-reveal";
 
 const services = [
   {
@@ -38,7 +39,7 @@ export default function ServicesSection() {
           <h2 className="text-4xl md:text-5xl font-bold text-[#011936] mb-4">Our Moving Services</h2>
           <p className="text-xl text-gray-700 max-w-3xl mx-auto">Comprehensive moving solutions tailored to your needs in Melbourne</p>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <StaggerReveal className="grid md:grid-cols-2 lg:grid-cols-3 gap-8" stagger={0.1}>
           {services.map((s) => (
             <div key={s.title} className="p-8 border border-gray-200 hover:border-[#FFB624] transition-colors">
               <div className="bg-[#FFB624] w-16 h-16 flex items-center justify-center mb-6">
@@ -48,7 +49,7 @@ export default function ServicesSection() {
               <p className="text-gray-700 leading-relaxed">{s.desc}</p>
             </div>
           ))}
-        </div>
+        </StaggerReveal>
       </div>
     </section>
   );

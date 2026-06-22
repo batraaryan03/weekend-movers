@@ -54,7 +54,7 @@ export default function BookingForm() {
           <h2 className="text-3xl font-bold text-[#011936] mb-2">Detailed Booking</h2>
           <p className="text-sm text-gray-600 max-w-md mx-auto">Ready to lock it in? Provide your details below.</p>
         </div>
-        <form onSubmit={handleSubmit} className="bg-white p-6 md:p-8 border border-gray-100 shadow-lg space-y-4">
+        <form onSubmit={handleSubmit} className="bg-white p-6 md:p-8 border border-gray-100 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-medium text-gray-600">Name *</label>
