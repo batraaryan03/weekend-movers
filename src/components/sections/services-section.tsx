@@ -109,9 +109,9 @@ function DesktopLayout() {
       /* ── Truck X: center → LEFT (-16%) → RIGHT (+24%) ── */
       let tx: number;
       if (p < 0.05) tx = 0;
-      else if (p < 0.48) tx = lerp(0, -16, (p - 0.05) / 0.26);
-      else if (p < 0.72) tx = lerp(-16, 24, (p - 0.48) / 0.24);
-      else tx = 29;
+      else if (p < 0.48) tx = lerp(0, -24, (p - 0.05) / 0.26);
+      else if (p < 0.72) tx = lerp(-24, 24, (p - 0.48) / 0.24);
+      else tx = 24;
 
       let ty: number;
       if (p < 0.05) ty = 0;
@@ -130,9 +130,9 @@ function DesktopLayout() {
       } else if (p < 0.48) {
         rotY = lerp(Math.PI, Math.PI * 0.2, (p - 0.05 ) / 0.26);
       } else if (p < 0.72) {
-        rotY = lerp(Math.PI * 0.2, -Math.PI * 0.3, (p - 0.48) / 0.24);
+        rotY = lerp(Math.PI * 0.2, -Math.PI * 0.15, (p - 0.48) / 0.24);
       } else {
-        rotY = -Math.PI * 0.4;
+        rotY = -Math.PI * 0.15;
       }
 
       scrollStore.truckRotationY = rotY;
@@ -145,14 +145,16 @@ function DesktopLayout() {
         headerRef.current.style.transform = `translateY(${lerp(0, -40, p / 0.1)}px)`;
       }
 
-      /* ── Timeline ── */
+      /* ── Timeline: opacity tied to truck entering, scale tied to truck position ── */
       if (timelineRef.current) {
-        const to = p < 0.20 ? 0 : Math.min(1, (p - 0.20) / 0.08);
+        const to = p < 0.18 ? 0 : Math.min(1, (p - 0.18) / 0.06);
         timelineRef.current.style.opacity = String(to);
       }
       if (lineRef.current) {
-        const lp = Math.min(1, Math.max(0, (p - 0.20) / 0.75));
-        lineRef.current.style.transform = `scaleY(${lp})`;
+        // line grows in sync with truck movement: tx goes 0 → -16 → 24
+        // normalized: 0 → 0.8 → 1.0
+        const lineProgress = Math.min(1, Math.max(0, (tx + 16) / 40));
+        lineRef.current.style.transform = `scaleY(${lineProgress})`;
       }
 
       /* ── Cards ── */
