@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFB624"/>
+      <stop offset="100%" style="stop-color:#FFC107"/>
+    </linearGradient>
+    <linearGradient id="gold-border" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700"/>
+      <stop offset="50%" style="stop-color:#FFB624"/>
+      <stop offset="100%" style="stop-color:#D4A017"/>
+    </linearGradient>
+  </defs>
+  <!-- Outer golden ring -->
+  <circle cx="100" cy="100" r="98" fill="url(#gold-border)"/>
+  <!-- Inner navy circle -->
+  <circle cx="100" cy="100" r="85" fill="#011936"/>
+  <!-- W Letter -->
+  <text x="100" y="122" font-family="serif" font-size="90" font-weight="bold" text-anchor="middle" fill="url(#gold)">W</text>
+</svg>
