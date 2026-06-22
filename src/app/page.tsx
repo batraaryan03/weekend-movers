@@ -38,9 +38,7 @@ export default function Home() {
           <BookingForm />
         </ScrollReveal>
 
-        <ScrollReveal>
-          <ServicesSection />
-        </ScrollReveal>
+        <ServicesSection />
 
         <ScrollReveal>
           <PricingSection />
