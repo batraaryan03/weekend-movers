@@ -45,7 +45,22 @@ const services = [
   },
 ];
 
-/* ── Helpers ── */
+/* ── Card layout positions ── */
+const cardPositions = [
+  { side: "right" as const, top: 28 },  // 1
+  { side: "right" as const, top: 52 },  // 2
+  { side: "left" as const, top: 28 },   // 3
+  { side: "left" as const, top: 52 },   // 4
+  { side: "center" as const, top: 78 }, // 5
+];
+
+/* ── Scroll thresholds for card groups ── */
+const groupThresholds = [
+  { start: 0.25, cards: [0, 1] },  // right cards
+  { start: 0.52, cards: [2, 3] },  // left cards
+  { start: 0.76, cards: [4] },     // center card
+];
+
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * Math.max(0, Math.min(1, t));
 }
@@ -55,7 +70,8 @@ export default function ServicesSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
-  const timelineLineRef = useRef<HTMLDivElement>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const lineRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
@@ -84,50 +100,76 @@ export default function ServicesSection() {
       });
     })();
 
-    /* ── Every scroll tick ── */
     function tick(p: number) {
-      /* Truck rotation via scrollStore (read by R3F useFrame) */
-      if (p < 0.25) {
+      /* ── Header ── */
+      if (headerRef.current) {
+        const ho = p < 0.08 ? 1 - p / 0.08 : 0;
+        headerRef.current.style.opacity = String(ho);
+        headerRef.current.style.transform = `translateY(${lerp(0, -40, p / 0.1)}px)`;
+      }
+
+      /* ── Truck X: center → LEFT (half distance: -16%) → RIGHT (+16%) ── */
+      let tx = 0;
+      if (p < 0.22) tx = 0;
+      else if (p < 0.48) tx = lerp(0, -16, (p - 0.22) / 0.26);
+      else if (p < 0.72) tx = lerp(-16, 16, (p - 0.48) / 0.24);
+      else tx = 16;
+
+      /* ── Truck scale: 1 → 0.7 ── */
+      let sc = 1;
+      if (p < 0.22) sc = 1;
+      else if (p < 0.48) sc = lerp(1, 0.7, (p - 0.22) / 0.26);
+      else sc = 0.7;
+
+      if (canvasRef.current)
+        canvasRef.current.style.transform = `translateX(${tx}%) scale(${sc})`;
+
+      /* ── Truck rotation — smooth continuous ── */
+      if (p < 0.22) {
         scrollStore.truckRotationY = Math.PI * 0.3;
-      } else if (p < 0.65) {
-        scrollStore.truckRotationY = lerp(
-          Math.PI * 0.3,
-          -Math.PI * 0.3,
-          (p - 0.25) / 0.4,
-        );
+      } else if (p < 0.48) {
+        scrollStore.truckRotationY = lerp(Math.PI * 0.3, Math.PI * 0.15, (p - 0.22) / 0.26);
+      } else if (p < 0.72) {
+        scrollStore.truckRotationY = lerp(Math.PI * 0.15, -Math.PI * 0.3, (p - 0.48) / 0.24);
       } else {
         scrollStore.truckRotationY = -Math.PI * 0.3;
       }
 
-      /* Truck scale inside sticky container */
-      let sc = 1;
-      if (p < 0.2) sc = 1;
-      else if (p < 0.5) sc = lerp(1, 0.7, (p - 0.2) / 0.3);
-      else sc = 0.7;
-      if (canvasRef.current)
-        canvasRef.current.style.transform = `scale(${sc})`;
-
-      /* Header fade-out */
-      if (headerRef.current) {
-        const ho = p < 0.08 ? 1 - p / 0.08 : 0;
-        headerRef.current.style.opacity = String(ho);
+      /* ── Timeline visibility ── */
+      if (timelineRef.current) {
+        const to = p < 0.20 ? 0 : Math.min(1, (p - 0.20) / 0.08);
+        timelineRef.current.style.opacity = String(to);
+      }
+      if (lineRef.current) {
+        const lp = Math.min(1, Math.max(0, (p - 0.20) / 0.75));
+        lineRef.current.style.transform = `scaleY(${lp})`;
       }
 
-      /* Timeline line height (grows with scroll) */
-      if (timelineLineRef.current) {
-        const lp = Math.min(1, Math.max(0, (p - 0.05) / 0.9));
-        timelineLineRef.current.style.transform = `scaleY(${lp})`;
-      }
+      /* ── Card groups ── */
+      const isMovingRight = p >= 0.48;
 
-      /* Card group fade-in (each card in its group fades together) */
-      const thresholds = [0.12, 0.12, 0.42, 0.42, 0.72];
-      for (let i = 0; i < services.length; i++) {
-        const el = cardRefs.current[i];
-        if (!el) continue;
-        const at = thresholds[i];
-        const cp = p > at ? Math.min(1, (p - at) / 0.06) : 0;
-        el.style.opacity = String(cp);
-        el.style.transform = `translateY(${(1 - cp) * 30}px)`;
+      for (const group of groupThresholds) {
+        for (const ci of group.cards) {
+          const el = cardRefs.current[ci];
+          if (!el) continue;
+          const isLeftCard = cardPositions[ci].side === "left";
+
+          // Left cards fade out when truck moves right
+          if (isLeftCard && isMovingRight) {
+            const fadeOut = Math.min(1, (p - 0.48) / 0.06);
+            const currentOpacity = p > group.start
+              ? Math.min(1, (p - group.start) / 0.06)
+              : 0;
+            const opacity = Math.max(0, currentOpacity - fadeOut);
+            el.style.opacity = String(opacity);
+            el.style.transform = `translateY(${(1 - opacity) * 24}px)`;
+            continue;
+          }
+
+          const cp = p > group.start ? Math.min(1, (p - group.start) / 0.06) : 0;
+          el.style.opacity = String(cp);
+          el.style.transform = `translateY(${(1 - cp) * 24}px)`;
+        }
       }
 
       invalidate();
@@ -143,14 +185,14 @@ export default function ServicesSection() {
     <section
       ref={sectionRef}
       className="relative bg-white"
-      style={{ height: "500vh" }}
+      style={{ height: "450vh" }}
     >
       {/* ── Sticky viewport ── */}
-      <div className="sticky top-0 h-screen overflow-hidden flex flex-col">
-        {/* Header — fades out on scroll */}
+      <div className="sticky top-0 h-screen overflow-hidden">
+        {/* Header */}
         <div
           ref={headerRef}
-          className="shrink-0 h-[20%] flex items-center justify-center"
+          className="absolute top-0 left-0 right-0 h-[20%] flex items-center justify-center z-20"
         >
           <div className="text-center px-4">
             <p className="text-golden font-semibold text-xs md:text-sm uppercase tracking-[0.22em] mb-3">
@@ -160,134 +202,143 @@ export default function ServicesSection() {
               Our Moving Services
             </h2>
             <p className="text-lg text-gray-500 max-w-2xl mx-auto">
-              Comprehensive moving solutions tailored to your needs in
-              Melbourne
+              Comprehensive moving solutions tailored to your needs in Melbourne
             </p>
           </div>
         </div>
 
-        {/* ── Two-column body ── */}
-        <div className="flex-1 flex min-h-0">
-          {/* Left: sticky 3D truck */}
-          <div className="w-[45%] relative flex items-center justify-center">
-            <div
-              ref={canvasRef}
-              className="w-full h-full"
-              style={{ transformOrigin: "center center" }}
-            >
-              <ModelViewer
-                url="/truck-special-model.glb"
-                width="100%"
-                height="100%"
-                defaultZoom={2.5}
-                enableMouseParallax
-              />
-            </div>
-          </div>
+        {/* ── Full-width 3D canvas ── */}
+        <div
+          ref={canvasRef}
+          className="absolute left-0 right-0 top-[20%] bottom-0 z-0"
+          style={{ transformOrigin: "center center" }}
+        >
+          <ModelViewer
+            url="/truck-special-model.glb"
+            width="100%"
+            height="100%"
+            defaultZoom={2.5}
+            enableMouseParallax
+          />
+        </div>
 
-          {/* Right: scrollable timeline + cards */}
-          <div className="w-[55%] relative overflow-hidden">
-            {/* Timeline vertical golden line */}
+        {/* ── Timeline + cards overlay ── */}
+        <div
+          ref={timelineRef}
+          className="absolute inset-0 pointer-events-none z-10"
+          style={{ opacity: 0 }}
+        >
+          {/* Vertical golden line — full height */}
+          <div
+            ref={lineRef}
+            className="absolute left-1/2 -translate-x-1/2 w-[3px] bg-golden origin-top"
+            style={{ top: "20%", bottom: "4%", transform: "scaleY(0)" }}
+          />
+
+          {/* Dots */}
+          {cardPositions.map((pos, i) => (
             <div
-              ref={timelineLineRef}
-              className="absolute left-0 top-0 bottom-0 w-[3px] bg-golden origin-top"
-              style={{ transform: "scaleY(0)" }}
+              key={`d${i}`}
+              className="absolute w-3.5 h-3.5 bg-golden rounded-[2px] z-10"
+              style={{
+                top: `${pos.top}%`,
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+              }}
             />
+          ))}
 
-            {/* Timeline content — tall to allow scrolling */}
-            <div className="h-full flex flex-col justify-between py-[8vh] px-10 md:px-14">
-              {/* Group 1: services 1-2 (right side) */}
-              <div className="flex flex-col gap-10">
-                {services.slice(0, 2).map((s, i) => (
-                  <div
-                    key={s.title}
-                    ref={(el) => {
-                      cardRefs.current[i] = el;
-                    }}
-                    className="pl-8 relative"
-                    style={{ opacity: 0 }}
-                  >
-                    {/* dot */}
-                    <div className="absolute left-[-5px] top-[10px] w-[13px] h-[13px] bg-golden rounded-[2px]" />
-                    {/* branch */}
-                    <div className="absolute left-[8px] top-[15px] w-5 h-[2px] bg-golden" />
+          {/* Branch lines */}
+          {cardPositions.map((pos, i) => {
+            if (pos.side === "center") return null;
+            const right = pos.side === "right";
+            return (
+              <div
+                key={`b${i}`}
+                className="absolute h-[2px] bg-golden"
+                style={{
+                  top: `${pos.top}%`,
+                  width: "36px",
+                  left: right ? "calc(50% + 7px)" : undefined,
+                  right: right ? undefined : "calc(50% + 7px)",
+                  transform: "translateY(-50%)",
+                }}
+              />
+            );
+          })}
 
-                    <div className="flex items-center gap-3 mb-1.5">
-                      <div className="w-9 h-9 bg-golden/10 flex items-center justify-center">
-                        <s.icon className="w-[18px] h-[18px] text-golden" />
-                      </div>
-                      <h3 className="text-[15px] font-semibold text-[#011936]">
-                        {s.title}
-                      </h3>
+          {/* Service cards */}
+          {services.map((s, i) => {
+            const pos = cardPositions[i];
+            const right = pos.side === "right";
+            const center = pos.side === "center";
+
+            const posStyle: React.CSSProperties = {
+              top: `${pos.top}%`,
+              width: "max(280px, 24vw)",
+              maxWidth: "360px",
+            };
+            if (center) {
+              posStyle.left = "50%";
+              posStyle.transform = "translateX(-50%)";
+            } else if (right) {
+              posStyle.left = "calc(50% + 50px)";
+            } else {
+              posStyle.right = "calc(50% + 50px)";
+            }
+
+            const Icon = s.icon;
+
+            return (
+              <div key={s.title} className="absolute" style={posStyle}>
+                <div
+                  ref={(el) => { cardRefs.current[i] = el; }}
+                  style={{ opacity: 0 }}
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 bg-golden/10 flex items-center justify-center">
+                      <Icon className="w-5 h-5 text-golden" />
                     </div>
-                    <p className="text-gray-400 text-[13px] leading-relaxed ml-[48px]">
-                      {s.desc}
-                    </p>
+                    <h3 className="text-base font-bold text-[#011936]">
+                      {s.title}
+                    </h3>
                   </div>
-                ))}
+                  <p className="text-gray-400 text-sm leading-relaxed ml-[52px]">
+                    {s.desc}
+                  </p>
+                </div>
               </div>
+            );
+          })}
 
-              {/* Group 2: services 3-4 (left side) */}
-              <div className="flex flex-col gap-10">
-                {services.slice(2, 4).map((s, i) => {
-                  const idx = i + 2;
-                  return (
-                    <div
-                      key={s.title}
-                      ref={(el) => {
-                        cardRefs.current[idx] = el;
-                      }}
-                      className="pl-8 relative"
-                      style={{ opacity: 0 }}
-                    >
-                      <div className="absolute left-[-5px] top-[10px] w-[13px] h-[13px] bg-golden rounded-[2px]" />
-                      <div className="absolute left-[8px] top-[15px] w-5 h-[2px] bg-golden" />
-
-                      <div className="flex items-center gap-3 mb-1.5">
-                        <div className="w-9 h-9 bg-golden/10 flex items-center justify-center">
-                          <s.icon className="w-[18px] h-[18px] text-golden" />
-                        </div>
-                        <h3 className="text-[15px] font-semibold text-[#011936]">
-                          {s.title}
-                        </h3>
-                      </div>
-                      <p className="text-gray-400 text-[13px] leading-relaxed ml-[48px]">
-                        {s.desc}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Group 3: service 5 (center/end) */}
-              {(() => {
-                const s5 = services[4];
-                const S5Icon = s5.icon;
-                return (
-                  <div
-                    ref={(el) => {
-                      cardRefs.current[4] = el;
-                    }}
-                    className="pl-8 relative"
-                    style={{ opacity: 0 }}
-                  >
-                    <div className="absolute left-[-5px] top-[10px] w-[13px] h-[13px] bg-golden rounded-[2px]" />
-                    <div className="absolute left-[8px] top-[15px] w-5 h-[2px] bg-golden" />
-
-                    <div className="flex items-center gap-3 mb-1.5">
-                      <div className="w-9 h-9 bg-golden/10 flex items-center justify-center">
-                        <S5Icon className="w-[18px] h-[18px] text-golden" />
-                      </div>
-                      <h3 className="text-[15px] font-semibold text-[#011936]">
-                        {s5.title}
-                      </h3>
-                    </div>
-                    <p className="text-gray-400 text-[13px] leading-relaxed ml-[48px]">
-                      {s5.desc}
-                    </p>
+          {/* Center card 5 — white background so timeline line overlaps cleanly */}
+          <div
+            className="absolute"
+            style={{
+              top: "78%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "max(280px, 24vw)",
+              maxWidth: "360px",
+            }}
+          >
+            <div
+              ref={(el) => { cardRefs.current[4] = el; }}
+              style={{ opacity: 0 }}
+            >
+              <div className="bg-white px-6 py-5">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 bg-golden/10 flex items-center justify-center">
+                    <Wrench className="w-5 h-5 text-golden" />
                   </div>
-                );
-              })()}
+                  <h3 className="text-base font-bold text-[#011936]">
+                    {services[4].title}
+                  </h3>
+                </div>
+                <p className="text-gray-400 text-sm leading-relaxed ml-[52px]">
+                  {services[4].desc}
+                </p>
+              </div>
             </div>
           </div>
         </div>
