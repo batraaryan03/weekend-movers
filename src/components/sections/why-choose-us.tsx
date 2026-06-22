@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckCircle, Users, DollarSign, Shield, Calendar, Heart } from "lucide-react";
-import { MobileCanvasRight } from "@/components/sections/services-section";
+import { CanvasRightDirectionTruck } from "@/components/sections/services-section";
 
 const features = [
   { icon: Users, title: "Local Melbourne Team", desc: "Born and raised in Melbourne, we know the city inside out" },
@@ -30,7 +30,7 @@ export default function WhyChooseUs() {
             Melbourne's trusted local movers with a commitment to excellence
           </p>
         </div>
-        <MobileCanvasRight />
+        <CanvasRightDirectionTruck />
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {features.map((f) => (
             <div key={f.title} className="flex items-start gap-4">
