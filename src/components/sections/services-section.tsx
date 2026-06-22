@@ -65,16 +65,12 @@ export default function ServicesSection() {
               <ModelViewer
                 url="/truck-special-model.glb"
                 width="100%"
-                height={450}
+                height={650}
                 autoRotate
-                autoRotateSpeed={0.35}
-                environmentPreset="city"
-                defaultRotationX={-45}
-                defaultRotationY={20}
-                defaultZoom={0.7}
-                showScreenshotButton={false}
-                enableMouseParallax
-                enableHoverRotation
+                autoRotateSpeed={0.15}
+                defaultZoom={3}
+                
+                
               />
             </div>
           </div>

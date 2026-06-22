@@ -1,7 +1,7 @@
 "use client";
 
-import { FC, Suspense, useRef, useEffect, useCallback } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { FC, Suspense, useRef, useEffect } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, useProgress, Html } from "@react-three/drei";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
@@ -10,26 +10,11 @@ export interface ViewerProps {
   url: string;
   width?: number | string;
   height?: number | string;
-  modelXOffset?: number;
-  modelYOffset?: number;
-  defaultRotationX?: number;
-  defaultRotationY?: number;
   defaultZoom?: number;
-  minZoomDistance?: number;
-  maxZoomDistance?: number;
-  enableMouseParallax?: boolean;
   enableManualRotation?: boolean;
-  enableHoverRotation?: boolean;
-  enableManualZoom?: boolean;
   ambientIntensity?: number;
   keyLightIntensity?: number;
-  fillLightIntensity?: number;
-  rimLightIntensity?: number;
-  environmentPreset?: "city" | "sunset" | "night" | "dawn" | "studio" | "apartment" | "forest" | "park" | "none";
-  autoFrame?: boolean;
   placeholderSrc?: string;
-  showScreenshotButton?: boolean;
-  fadeIn?: boolean;
   autoRotate?: boolean;
   autoRotateSpeed?: number;
   onModelLoaded?: () => void;
@@ -88,17 +73,11 @@ const ModelViewer: FC<ViewerProps> = ({
   url,
   width = 400,
   height = 400,
-  defaultRotationX = -45,
-  defaultRotationY = 20,
   defaultZoom = 2,
-  minZoomDistance = 1,
-  maxZoomDistance = 10,
   enableManualRotation = true,
-  enableManualZoom = true,
   ambientIntensity = 0.5,
   keyLightIntensity = 1.2,
   placeholderSrc,
-  showScreenshotButton = false,
   autoRotate = false,
   autoRotateSpeed = 0.35,
   onModelLoaded,
@@ -112,12 +91,6 @@ const ModelViewer: FC<ViewerProps> = ({
       style={{ width, height }}
       className="relative"
     >
-      {showScreenshotButton && (
-        <button className="absolute top-4 right-4 z-10 px-3 py-1.5 text-xs border border-gray-300 rounded-lg bg-white/80 hover:bg-white transition-colors">
-          Screenshot
-        </button>
-      )}
-
       <Canvas
         camera={{
           fov: 50,
@@ -140,11 +113,7 @@ const ModelViewer: FC<ViewerProps> = ({
           castShadow={false}
         />
         <directionalLight position={[-5, 3, -5]} intensity={0.4} />
-        <hemisphereLight
-          skyColor="#b1e1ff"
-          groundColor="#d4a574"
-          intensity={0.3}
-        />
+        <hemisphereLight args={["#b1e1ff", "#d4a574", 0.3]} />
 
         <Suspense fallback={<Loader placeholderSrc={placeholderSrc} />}>
           <ModelInner
@@ -157,11 +126,11 @@ const ModelViewer: FC<ViewerProps> = ({
 
         {enableManualRotation && (
           <OrbitControls
-            enableZoom={enableManualZoom}
+            enableZoom={false}
             enablePan={false}
-            minDistance={minZoomDistance}
-            maxDistance={maxZoomDistance}
             autoRotate={false}
+            enableDamping={true}
+            dampingFactor={0.05}
           />
         )}
       </Canvas>
