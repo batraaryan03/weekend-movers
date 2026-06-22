@@ -36,3 +36,23 @@ html {
 .animate-reviews-scroll {
   animation: wm-scroll-left 30s linear infinite;
 }
+
+/* Gallery marquee animations */
+@keyframes wm-gallery-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes wm-gallery-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+/* Hide scrollbar */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

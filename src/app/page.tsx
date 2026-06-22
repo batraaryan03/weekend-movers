@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import ScrollProgress from "@/components/scroll-progress";
 import Header from "@/components/sections/header";
 import HeroSection from "@/components/sections/hero-section";
 import ReviewsMarquee from "@/components/sections/reviews-marquee";
@@ -19,6 +20,7 @@ import ScrollReveal from "@/components/scroll-reveal";
 export default function Home() {
   return (
     <>
+      <ScrollProgress />
       <Header />
       <main className="flex-grow">
         {/* Hero — no animation, visible immediately */}
