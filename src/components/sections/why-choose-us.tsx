@@ -27,10 +27,18 @@ export default function WhyChooseUs() {
             Why Choose Weekend Movers
           </h2>
           <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-            Melbourne's trusted local movers with a commitment to excellence
+            Melbourne&apos;s trusted local movers with a commitment to
+            excellence
           </p>
         </div>
-        <CanvasRightDirectionTruck />
+        {/* Team photo */}
+        <div className="max-w-4xl mx-auto mb-12">
+          <img
+            src="/special/men-four-smiling-truck-behind-image.png"
+            alt="The Weekend Movers professional team standing in front of our branded moving truck"
+            className="w-full h-auto"
+          />
+        </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {features.map((f) => (
             <div key={f.title} className="flex items-start gap-4">

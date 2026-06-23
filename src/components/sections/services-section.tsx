@@ -98,7 +98,7 @@ function DesktopLayout() {
       ctx = gsap.context(() => {
         ScrollTrigger.create({
           trigger: section,
-          start: "top 75%",
+          start: "top 60%",
           end: "bottom 75%",
           scrub: 1.3,
           onUpdate: (self) => tick(self.progress),
@@ -109,7 +109,7 @@ function DesktopLayout() {
     function tick(p: number) {
       /* ── Truck: simple continuous slide, like mobile ── */
       let tx = lerp(-18, 18, p);
-      let ty = lerp(-25, -25, p);
+      let ty = lerp(-23, -23, p);
 
       if (canvasRef.current)
         canvasRef.current.style.transform = `translateX(${tx}%) translateY(${ty}%) scale(1)`;
@@ -306,22 +306,56 @@ function MobileLayout({ isMobile, serviceLayout = true, direction = "left" }: { 
   }, [isRight]);
 
   return (
-    <section className="relative bg-white mx-0 px-0" style={{ minHeight: serviceLayout ? "100vh" : "auto" }}>
+    <>
       {serviceLayout && (
-        <>
-          <div className="pt-10 pb-4 text-center px-4">
-            <p className="text-golden font-semibold text-xs uppercase tracking-[0.22em] mb-2">What We Offer</p>
-            <h2 className="text-3xl font-bold text-[#011936] mb-2">Our Moving Services</h2>
-            <p className="text-sm text-gray-500 max-w-xs mx-auto">Comprehensive moving solutions tailored to your needs in Melbourne</p>
-          </div>
-        </>
+        <section
+          className="relative bg-white mx-0 px-0"
+          style={{ minHeight: serviceLayout ? "auto" : "auto" }}
+        >
+          <>
+            <div className="pt-10 pb-4 text-center px-4">
+              <p className="text-golden font-semibold text-xs uppercase tracking-[0.22em] mb-2">
+                What We Offer
+              </p>
+              <h2 className="text-3xl font-bold text-[#011936] mb-2">
+                Our Moving Services
+              </h2>
+              <p className="text-sm text-gray-500 max-w-xs mx-auto">
+                Comprehensive moving solutions tailored to your needs in
+                Melbourne
+              </p>
+            </div>
+          </>
+        </section>
       )}
 
-      <div ref={canvasRef} className="w-full h-[15vh] mx-0 px-0" style={{ transformOrigin: "center center" }}>
+      <div
+        ref={canvasRef}
+        className="w-full h-[15vh] mx-0 px-0"
+        style={{ transformOrigin: "center center" }}
+      >
         {!isMobile ? (
-          <ModelViewer url="/truck-special-model.glb" width="100%" height="100%" defaultZoom={2.75} enableAutoRotate={false} enableTouchRotate={false} enableMouseParallax={false} fixedRotationY={isRight ? 0 : Math.PI} />
+          <ModelViewer
+            url="/truck-special-model.glb"
+            width="100%"
+            height="100%"
+            defaultZoom={2.75}
+            enableAutoRotate={false}
+            enableTouchRotate={false}
+            enableMouseParallax={false}
+            fixedRotationY={isRight ? 0 : Math.PI}
+          />
         ) : (
-          <ModelViewer url="/truck-special-model.glb" width="100%" height="100%" defaultZoom={2.75} enableAutoRotate={false} enableTouchRotate={false} enableMouseParallax={false} fixedRotationY={isRight ? 0 : Math.PI} />
+          <ModelViewer
+            url="/truck-special-model.glb"
+            width="100%"
+            height="100%"
+            defaultZoom={2.75}
+            enableAutoRotate={false}
+            enableTouchRotate={false}
+            enableMouseParallax={false}
+            fixedRotationY={isRight ? 0 : Math.PI}
+          />
         )}
       </div>
 
@@ -330,15 +364,20 @@ function MobileLayout({ isMobile, serviceLayout = true, direction = "left" }: { 
           {services.map((s, i) => {
             const Icon = s.icon;
             return (
-              <div key={s.title} className="bg-white p-6 tracking-wide">
-                <h3 className="text-lg font-bold text-[#011936] mb-2 flex items-center gap-2"><Icon className="w-5 h-5 text-[#011936] shrink-0" />{s.title}</h3>
-                <p className="text-gray-700 text-base leading-relaxed">{s.desc}</p>
+              <div key={s.title} className="bg-white tracking-wide">
+                <h3 className="text-lg font-bold text-[#011936] mb-2 flex items-center gap-2">
+                  <Icon className="w-5 h-5 text-[#011936] shrink-0" />
+                  {s.title}
+                </h3>
+                <p className="text-gray-700 text-base leading-relaxed">
+                  {s.desc}
+                </p>
               </div>
             );
           })}
         </div>
       )}
-    </section>
+    </>
   );
 }
 
