@@ -334,7 +334,7 @@ function MobileLayout({ isMobile, serviceLayout = true, direction = "left" }: { 
   }, [isRight]);
 
   return (
-    <>
+    <div className="overflow-hidden">
       {serviceLayout && (
         <section
           className="relative bg-white mx-0 px-0"
@@ -414,7 +414,7 @@ function MobileLayout({ isMobile, serviceLayout = true, direction = "left" }: { 
           })}
         </div>
       )}
-    </>
+    </div>
   );
 }
 
