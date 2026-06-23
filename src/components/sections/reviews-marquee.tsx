@@ -17,23 +17,26 @@ export default function ReviewsMarquee() {
   return (
     <section
       id="reviews"
-      className="relative min-h-screen overflow-hidden"
+      className="relative min-h-[80vh] flex flex-col justify-end overflow-hidden"
     >
       {/* ── Background image — happy customers ── */}
+      <div className="absolute inset-0 z-0">
         <img
           src="/special/happy-customers.png"
           alt=""
           aria-hidden="true"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 z-0 bg-black/25">
+        <div className="absolute inset-0 bg-black/40" />
       </div>
-      <div className="relative z-10 max-w-6xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#011936] mb-4">
+
+      {/* ── Content — bottom center overlay ── */}
+      <div className="relative z-10 max-w-6xl mx-auto px-4 pb-12 w-full">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             What Our Customers Say
           </h2>
-          <p className="text-gray-600">Real reviews from Melbourne locals</p>
+          <p className="text-white/70">Real reviews from Melbourne locals</p>
         </div>
         <div className="overflow-hidden">
           <div
@@ -43,23 +46,23 @@ export default function ReviewsMarquee() {
             {[...reviews, ...reviews].map((r, i) => (
               <div
                 key={i}
-                className="w-80 shrink-0 bg-gray-50 border border-gray-100 p-6"
+                className="w-80 shrink-0 bg-white/10 backdrop-blur-sm border border-white/20 p-6"
               >
                 <div className="flex gap-1 mb-3">
                   {[...Array(5)].map((_, j) => (
                     <Star
                       key={j}
-                      className="w-4 h-4 fill-golden text-golden"
+                      className="w-4 h-4 fill-[#FFB624] text-[#FFB624]"
                     />
                   ))}
                 </div>
-                <p className="text-gray-700 text-sm leading-relaxed mb-4">
+                <p className="text-white/90 text-sm leading-relaxed mb-4">
                   &ldquo;{r.text}&rdquo;
                 </p>
                 <div className="text-sm">
-                  <span className="font-bold text-[#011936]">{r.name}</span>
-                  <span className="text-gray-400 mx-1">•</span>
-                  <span className="text-gray-500">{r.location}</span>
+                  <span className="font-bold text-white">{r.name}</span>
+                  <span className="text-white/40 mx-1">&bull;</span>
+                  <span className="text-white/60">{r.location}</span>
                 </div>
               </div>
             ))}
