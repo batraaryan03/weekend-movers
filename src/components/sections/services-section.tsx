@@ -289,10 +289,11 @@ function MobileLayout({ isMobile, serviceLayout = true, direction = "left" }: { 
         const viewportCenter = window.innerHeight / 2;
         const distFromCenter = (rect.top + rect.height / 1.5 - viewportCenter) / viewportCenter;
         const x = distFromCenter * 60;
-        const y = -68;
         if (isRight) {
+          const y = -68;
           canvasRef.current.style.transform = `translateX(${x}%) translateY(${y}%) scale(1)`;
         } else {
+          const y = -20;
           canvasRef.current.style.transform = `translateX(${-x}%) translateY(${y}%) scale(1)`;
         }
       }
@@ -318,9 +319,9 @@ function MobileLayout({ isMobile, serviceLayout = true, direction = "left" }: { 
 
       <div ref={canvasRef} className="w-full h-[15vh] mx-0 px-0" style={{ transformOrigin: "center center" }}>
         {!isMobile ? (
-          <ModelViewer url="/truck-special-model.glb" width="100%" height="100%" defaultZoom={2.25} enableAutoRotate={false} enableTouchRotate={false} enableMouseParallax={false} fixedRotationY={isRight ? 0 : Math.PI} />
+          <ModelViewer url="/truck-special-model.glb" width="100%" height="100%" defaultZoom={2.75} enableAutoRotate={false} enableTouchRotate={false} enableMouseParallax={false} fixedRotationY={isRight ? 0 : Math.PI} />
         ) : (
-          <ModelViewer url="/truck-special-model.glb" width="100%" height="200%" defaultZoom={1.75} enableAutoRotate={false} enableTouchRotate={false} enableMouseParallax={false} fixedRotationY={isRight ? 0 : Math.PI} />
+          <ModelViewer url="/truck-special-model.glb" width="100%" height="100%" defaultZoom={2.75} enableAutoRotate={false} enableTouchRotate={false} enableMouseParallax={false} fixedRotationY={isRight ? 0 : Math.PI} />
         )}
       </div>
 
