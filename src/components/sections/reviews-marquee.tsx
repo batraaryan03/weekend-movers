@@ -15,22 +15,47 @@ const reviews = [
 
 export default function ReviewsMarquee() {
   return (
-    <section id="reviews" className="py-16 bg-white overflow-hidden">
-      <div className="max-w-6xl mx-auto px-4">
+    <section
+      id="reviews"
+      className="relative min-h-screen overflow-hidden"
+    >
+      {/* ── Background image — happy customers ── */}
+        <img
+          src="/special/happy-customers.png"
+          alt=""
+          aria-hidden="true"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 z-0 bg-black/25">
+      </div>
+      <div className="relative z-10 max-w-6xl mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#011936] mb-4">What Our Customers Say</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-[#011936] mb-4">
+            What Our Customers Say
+          </h2>
           <p className="text-gray-600">Real reviews from Melbourne locals</p>
         </div>
         <div className="overflow-hidden">
-          <div className="flex gap-6 animate-reviews-scroll" style={{ width: "max-content" }}>
+          <div
+            className="flex gap-6 animate-reviews-scroll"
+            style={{ width: "max-content" }}
+          >
             {[...reviews, ...reviews].map((r, i) => (
-              <div key={i} className="w-80 shrink-0 bg-gray-50 border border-gray-100 p-6">
+              <div
+                key={i}
+                className="w-80 shrink-0 bg-gray-50 border border-gray-100 p-6"
+              >
                 <div className="flex gap-1 mb-3">
                   {[...Array(5)].map((_, j) => (
-                    <Star key={j} className="w-4 h-4 fill-[#FFB624] text-[#FFB624]" />
+                    <Star
+                      key={j}
+                      className="w-4 h-4 fill-golden text-golden"
+                    />
                   ))}
                 </div>
-                <p className="text-gray-700 text-sm leading-relaxed mb-4">&ldquo;{r.text}&rdquo;</p>
+                <p className="text-gray-700 text-sm leading-relaxed mb-4">
+                  &ldquo;{r.text}&rdquo;
+                </p>
                 <div className="text-sm">
                   <span className="font-bold text-[#011936]">{r.name}</span>
                   <span className="text-gray-400 mx-1">•</span>

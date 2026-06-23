@@ -1,12 +1,26 @@
 "use client";
 
-import { Phone, Star } from "lucide-react";
+import { Phone } from "lucide-react";
 import QuickQuoteForm from "./quick-quote-form";
 
 export default function HeroSection() {
   return (
     <section id="home" className="relative min-h-screen flex items-center overflow-hidden bg-white">
-      <div className="max-w-6xl mx-auto px-4 md:px-8 w-full py-20">
+      {/* ── Background image — covers first 100vh ── */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{ height: "100vh" }}
+      >
+        <img
+          src="/special/men-loading-item-to-truck.png"
+          alt=""
+          aria-hidden="true"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/25" />
+      </div>
+
+      <div className="relative z-10 max-w-6xl mx-auto px-4 md:px-8 w-full py-20">
         {/* ── Centered text block ── */}
         <div className="text-center mb-12">
           {/* Eyebrow */}
@@ -28,16 +42,13 @@ export default function HeroSection() {
             transparent pricing, and weekend availability.
           </p>
 
-          {/* Star rating */}
-          <div className="flex items-center justify-center gap-3 mt-5">
-            <div className="flex gap-1">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-5 h-5 fill-[#FFB624] text-[#FFB624]" />
-              ))}
-            </div>
-            <span className="text-[#011936]/50 text-sm font-medium">
-              Rated by Melbourne locals
-            </span>
+          {/* Trust badge */}
+          <div className="mt-6 flex justify-center">
+            <img
+              src="/special/rated-5-stars-by-melbourne-locals.png"
+              alt="Rated 5 stars by Melbourne locals"
+              className="h-28 md:h-36 w-auto"
+            />
           </div>
 
           {/* CTA buttons */}
