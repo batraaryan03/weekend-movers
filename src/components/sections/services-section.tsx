@@ -57,9 +57,8 @@ const cardPositions = [
 
 /* ── Desktop: Scroll thresholds for card groups ── */
 const groupThresholds = [
-  { start: 0.25, cards: [0, 1] },      // right cards appear
-  { start: 0.52, cards: [2, 3] },      // left cards (first two)
-  { start: 0.48, cards: [4] },         // third left card appears only when truck moves right
+  { start: 0.05, cards: [0, 1] },      // right cards appear
+  { start: 0.45, cards: [2, 3, 4] },   // left cards appear
 ];
 
 function lerp(a: number, b: number, t: number) {
@@ -99,96 +98,65 @@ function DesktopLayout() {
       ctx = gsap.context(() => {
         ScrollTrigger.create({
           trigger: section,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 2.6,
+          start: "top 75%",
+          end: "bottom 75%",
+          scrub: 0.8,
+          markers: true,
           onUpdate: (self) => tick(self.progress),
         });
       });
     })();
 
     function tick(p: number) {
-      /* ── Truck X: center → LEFT (-24%) → RIGHT (+24%) ── */
+      /* ── Truck X: center → slightly LEFT as left cards appear ── */
       let tx: number;
-      if (p < 0.05) tx = 0;
-      else if (p < 0.48) tx = lerp(0, -24, (p - 0.05) / 0.26);
-      else if (p < 0.72) tx = lerp(-24, 24, (p - 0.48) / 0.24);
-      else tx = 24;
+      if (p < 0.45) tx = lerp(0, -2, p / 0.45);
+      else tx = lerp(-2, -14, (p - 0.45) / 0.55);
 
       let ty: number;
-      if (p < 0.05) ty = 0;
-      else if (p < 0.48) ty = lerp(0, -10, (p - 0.05) / 0.26);
-      else if (p < 0.72) ty = lerp(-10, -10, (p - 0.48) / 0.24);
-      else ty = -10;
+      ty = lerp(0, -5, p);
 
-      // Truck scale — constant, 25% larger
       if (canvasRef.current)
         canvasRef.current.style.transform = `translateX(${tx}%) translateY(${ty}%) scale(1)`;
 
-      /* ── Truck rotation — smooth from initial through to final ── */
+      /* ── Truck rotation — face right, then turn toward left cards ── */
       let rotY: number;
-      if (p < 0.05) {
-        rotY = lerp(Math.PI, Math.PI, p / 0.05);
-      } else if (p < 0.48) {
-        rotY = lerp(Math.PI, Math.PI * 0.2, (p - 0.05) / 0.26);
-      } else if (p < 0.72) {
-        rotY = lerp(Math.PI * 0.2, -Math.PI * 0.15, (p - 0.48) / 0.24);
-      } else {
-        rotY = -Math.PI * 0.15;
-      }
+      if (p < 0.5) rotY = lerp(Math.PI, Math.PI * 0.15, p / 0.5);
+      else rotY = lerp(Math.PI * 0.15, -Math.PI * 0.1, (p - 0.5) / 0.5);
 
       scrollStore.truckRotationY = rotY;
       invalidate();
 
-      /* ── Header ── */
+      /* ── Header — always visible ── */
       if (headerRef.current) {
-        const ho = p < 0.08 ? 1 - p / 0.08 : 0;
-        headerRef.current.style.opacity = String(ho);
-        headerRef.current.style.transform = `translateY(${lerp(0, -40, p / 0.1)}px)`;
+        headerRef.current.style.opacity = "1";
+        headerRef.current.style.transform = `translateY(${lerp(0, -12, p)}px)`;
       }
 
-      /* ── Timeline: opacity tied to truck entering, scale tied to truck position ── */
+      /* ── Timeline: opacity + scale follow scroll progress directly ── */
       if (timelineRef.current) {
-        const to = p < 0.18 ? 0 : Math.min(1, (p - 0.18) / 0.06);
+        const to = p < 0.05 ? 0 : Math.min(1, (p - 0.05) / 0.12);
         timelineRef.current.style.opacity = String(to);
       }
       if (lineRef.current) {
-        const lineProgress = Math.min(1, Math.max(0, (tx + 16) / 40));
-        lineRef.current.style.transform = `scaleY(${lineProgress})`;
+        lineRef.current.style.transform = `scaleY(${p})`;
       }
 
-      /* ── Cards ── */
-      const isTruckMovingRight = p >= 0.48;
-
+      /* ── Cards: right group first, left group with truck ── */
       for (const group of groupThresholds) {
         for (const ci of group.cards) {
           const el = cardRefs.current[ci];
           if (!el) continue;
-          const isRightCard = cardPositions[ci].side === "right";
-          const isLeftCard = cardPositions[ci].side === "left";
 
-          if (isRightCard && isTruckMovingRight) {
-            const fadeOut = Math.min(1, (p - 0.48) / 0.08);
-            el.style.opacity = String(Math.max(0, 1 - fadeOut));
-            el.style.transform = `translateY(${fadeOut * 24}px)`;
-            continue;
-          }
-
-          const cp = p > group.start ? Math.min(1, (p - group.start) / 0.06) : 0;
-          // Card 4 (Furniture Assembly) only appears when truck moves right
-          const opacity = ci === 4 ? (p >= 0.48 ? Math.min(1, (p - 0.48) / 0.06) : 0) : cp;
-          el.style.opacity = String(opacity);
-          el.style.transform = `translateY(${(1 - opacity) * 24}px)`;
+          const cp = p > group.start ? Math.min(1, (p - group.start) / 0.1) : 0;
+          el.style.opacity = String(cp);
+          el.style.transform = `translateY(${(1 - cp) * 20}px)`;
         }
       }
 
-      // ALL dots/branches opacity controlled here
-      // Right dots/branches: visible 0.25–0.48, fade out after
-      const rightVisible = p >= 0.25 && p < 0.48;
-      const rightFadeIn = p >= 0.25 ? Math.min(1, (p - 0.25) / 0.06) : 0;
-      const rightFadeOut = p >= 0.48 ? Math.min(1, (p - 0.48) / 0.08) : 0;
-      const rightOpacity = rightVisible ? rightFadeIn : (p >= 0.48 ? Math.max(0, 1 - rightFadeOut) : 0);
-
+      // ALL dots/branches — follow card groups
+      // Right dots/branches: visible with right cards
+      const rightOpacity = p > 0.05 ? Math.min(1, (p - 0.05) / 0.1) : 0;
       for (let j = 0; j < 2; j++) {
         const rb = rightBranchRefs.current[j];
         const rd = rightDotRefs.current[j];
@@ -196,10 +164,8 @@ function DesktopLayout() {
         if (rd) rd.style.opacity = String(rightOpacity);
       }
 
-      // Left dots/branches (first two): visible when truck moves left (p >= 0.52)
-      const leftVisible = p >= 0.52;
-      const leftOpacity = leftVisible ? Math.min(1, (p - 0.52) / 0.06) : 0;
-
+      // Left dots/branches: visible with left cards
+      const leftOpacity = p > 0.45 ? Math.min(1, (p - 0.45) / 0.1) : 0;
       for (let j = 0; j < 2; j++) {
         const lb = leftBranchRefs.current[j];
         const ld = leftDotRefs.current[j];
@@ -207,10 +173,9 @@ function DesktopLayout() {
         if (ld) ld.style.opacity = String(leftOpacity);
       }
 
-      // Third left dot/branch: visible only when truck moves right
-      const thirdLeftOpacity = p >= 0.48 ? Math.min(1, (p - 0.48) / 0.06) : 0;
-      if (thirdLeftDotRef.current) thirdLeftDotRef.current.style.opacity = String(thirdLeftOpacity);
-      if (thirdLeftBranchRef.current) thirdLeftBranchRef.current.style.opacity = String(thirdLeftOpacity);
+      // Third left dot/branch: same timing as other left dots
+      if (thirdLeftDotRef.current) thirdLeftDotRef.current.style.opacity = String(leftOpacity);
+      if (thirdLeftBranchRef.current) thirdLeftBranchRef.current.style.opacity = String(leftOpacity);
     }
 
     return () => {
@@ -220,7 +185,7 @@ function DesktopLayout() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative bg-white mx-0 px-0" style={{ height: "400vh" }}>
+    <section ref={sectionRef} className="relative bg-white mx-0 px-0" style={{ height: "75vh" }}>
       <div className="sticky top-0 h-screen overflow-hidden">
         {/* Header */}
         <div ref={headerRef} className="absolute top-0 left-0 right-0 h-[20%] flex items-center justify-center z-20">
@@ -233,7 +198,7 @@ function DesktopLayout() {
 
         {/* 3D canvas */}
         <div ref={canvasRef} className="absolute left-0 right-0 top-[20%] bottom-0 z-0" style={{ transformOrigin: "center center", willChange: "transform" }}>
-          <ModelViewer url="/truck-special-model.glb" width="100%" height="80%" defaultZoom={2.5} enableMouseParallax />
+          <ModelViewer url="/truck-special-model.glb" width="100%" height="50%" defaultZoom={5.5} enableMouseParallax />
         </div>
 
         {/* Timeline + cards overlay */}
@@ -300,7 +265,7 @@ function DesktopLayout() {
             const Icon = s.icon;
             return (
               <div key={s.title} className="absolute" style={posStyle}>
-                <div ref={(el) => { cardRefs.current[i] = el; }} style={{ opacity: 0 }} className="bg-white ml-5 translate-y-[-15px] text-justify tracking-wide">
+                <div ref={(el) => { cardRefs.current[i] = el; }} style={{ opacity: 0 }} className="bg-transparent ml-5 translate-y-[-15px] text-justify tracking-wide">
                   <h3 className="text-lg font-bold text-[#011936] mb-2 flex items-center gap-2"><Icon className="w-5 h-5 text-[#011936]" />{s.title}</h3>
                   <p className="text-gray-700 text-base leading-relaxed">{s.desc}</p>
                 </div>
