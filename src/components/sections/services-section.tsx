@@ -58,7 +58,8 @@ const cardPositions = [
 /* ── Desktop: Scroll thresholds for card groups ── */
 const groupThresholds = [
   { start: 0.25, cards: [0, 1] },      // right cards appear
-  { start: 0.52, cards: [2, 3, 4] },   // left cards appear (all three together)
+  { start: 0.52, cards: [2, 3] },      // left cards (first two)
+  { start: 0.48, cards: [4] },         // third left card appears only when truck moves right
 ];
 
 function lerp(a: number, b: number, t: number) {
@@ -77,6 +78,8 @@ function DesktopLayout() {
   const leftDotRefs = useRef<(HTMLDivElement | null)[]>([]);
   const rightBranchRefs = useRef<(HTMLDivElement | null)[]>([]);
   const rightDotRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const thirdLeftBranchRef = useRef<HTMLDivElement | null>(null);
+  const thirdLeftDotRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -172,19 +175,42 @@ function DesktopLayout() {
           }
 
           const cp = p > group.start ? Math.min(1, (p - group.start) / 0.06) : 0;
-          el.style.opacity = String(cp);
-          el.style.transform = `translateY(${(1 - cp) * 24}px)`;
+          // Card 4 (Furniture Assembly) only appears when truck moves right
+          const opacity = ci === 4 ? (p >= 0.48 ? Math.min(1, (p - 0.48) / 0.06) : 0) : cp;
+          el.style.opacity = String(opacity);
+          el.style.transform = `translateY(${(1 - opacity) * 24}px)`;
         }
       }
 
-      const rightFadeOut = isTruckMovingRight ? Math.min(1, (p - 0.48) / 0.08) : 0;
+      // ALL dots/branches opacity controlled here
+      // Right dots/branches: visible 0.25–0.48, fade out after
+      const rightVisible = p >= 0.25 && p < 0.48;
+      const rightFadeIn = p >= 0.25 ? Math.min(1, (p - 0.25) / 0.06) : 0;
+      const rightFadeOut = p >= 0.48 ? Math.min(1, (p - 0.48) / 0.08) : 0;
+      const rightOpacity = rightVisible ? rightFadeIn : (p >= 0.48 ? Math.max(0, 1 - rightFadeOut) : 0);
+
       for (let j = 0; j < 2; j++) {
         const rb = rightBranchRefs.current[j];
         const rd = rightDotRefs.current[j];
-        const rv = String(Math.max(0, 1 - rightFadeOut));
-        if (rb) rb.style.opacity = rv;
-        if (rd) rd.style.opacity = rv;
+        if (rb) rb.style.opacity = String(rightOpacity);
+        if (rd) rd.style.opacity = String(rightOpacity);
       }
+
+      // Left dots/branches (first two): visible when truck moves left (p >= 0.52)
+      const leftVisible = p >= 0.52;
+      const leftOpacity = leftVisible ? Math.min(1, (p - 0.52) / 0.06) : 0;
+
+      for (let j = 0; j < 2; j++) {
+        const lb = leftBranchRefs.current[j];
+        const ld = leftDotRefs.current[j];
+        if (lb) lb.style.opacity = String(leftOpacity);
+        if (ld) ld.style.opacity = String(leftOpacity);
+      }
+
+      // Third left dot/branch: visible only when truck moves right
+      const thirdLeftOpacity = p >= 0.48 ? Math.min(1, (p - 0.48) / 0.06) : 0;
+      if (thirdLeftDotRef.current) thirdLeftDotRef.current.style.opacity = String(thirdLeftOpacity);
+      if (thirdLeftBranchRef.current) thirdLeftBranchRef.current.style.opacity = String(thirdLeftOpacity);
     }
 
     return () => {
@@ -215,32 +241,42 @@ function DesktopLayout() {
           {/* Vertical golden line */}
           <div ref={lineRef} className="absolute left-1/2 -translate-x-1/2 w-[3px] bg-golden origin-top" style={{ top: "20%", bottom: "4%", transform: "scaleY(0)" }} />
 
-          {/* Dots and branch lines */}
-          {cardPositions.map((pos, i) => {
-            const isLeft = pos.side === "left";
-            const isRight = pos.side === "right";
-            const leftIdx = isLeft ? (i === 2 ? 0 : i === 3 ? 1 : 2) : -1;
-            const rightIdx = isRight ? (i === 0 ? 0 : 1) : -1;
-            return (
-              <div
-                key={`d${i}`}
-                ref={isLeft ? (el) => { leftDotRefs.current[leftIdx] = el; } : isRight ? (el) => { rightDotRefs.current[rightIdx] = el; } : undefined}
-                className="absolute w-3.5 h-3.5 bg-golden rounded-[2px] z-10"
-                style={{ top: `${pos.top}%`, left: "50%", transform: "translate(-50%, -50%)" }}
-              />
-            );
-          })}
-
+          {/* Dots — start invisible, opacity controlled by tick() */}
           {cardPositions.map((pos, i) => {
             const right = pos.side === "right";
             const isLeft = pos.side === "left";
             const isRight = pos.side === "right";
-            const leftIdx = isLeft ? (i === 2 ? 0 : i === 3 ? 1 : 2) : -1;
+            const leftIdx = isLeft ? (i === 2 ? 0 : i === 3 ? 1 : -1) : -1;
+            const rightIdx = isRight ? (i === 0 ? 0 : 1) : -1;
+            return (
+              <div
+                key={`d${i}`}
+                ref={(el) => {
+                  if (isLeft && leftIdx >= 0) leftDotRefs.current[leftIdx] = el;
+                  if (isRight && rightIdx >= 0) rightDotRefs.current[rightIdx] = el;
+                  if (i === 4) thirdLeftDotRef.current = el;
+                }}
+                className="absolute w-3.5 h-3.5 bg-golden rounded-[2px] z-10"
+                style={{ top: `${pos.top}%`, left: "50%", transform: "translate(-50%, -50%)", opacity: 0 }}
+              />
+            );
+          })}
+
+          {/* Branch lines — start invisible, opacity controlled by tick() */}
+          {cardPositions.map((pos, i) => {
+            const right = pos.side === "right";
+            const isLeft = pos.side === "left";
+            const isRight = pos.side === "right";
+            const leftIdx = isLeft ? (i === 2 ? 0 : i === 3 ? 1 : -1) : -1;
             const rightIdx = isRight ? (i === 0 ? 0 : 1) : -1;
             return (
               <div
                 key={`b${i}`}
-                ref={isLeft ? (el) => { leftBranchRefs.current[leftIdx] = el; } : isRight ? (el) => { rightBranchRefs.current[rightIdx] = el; } : undefined}
+                ref={(el) => {
+                  if (isLeft && leftIdx >= 0) leftBranchRefs.current[leftIdx] = el;
+                  if (isRight && rightIdx >= 0) rightBranchRefs.current[rightIdx] = el;
+                  if (i === 4) thirdLeftBranchRef.current = el;
+                }}
                 className="absolute h-[2px] bg-golden"
                 style={{
                   top: `${pos.top}%`,
@@ -248,6 +284,7 @@ function DesktopLayout() {
                   left: right ? "calc(50% + 7px)" : undefined,
                   right: right ? undefined : "calc(50% + 7px)",
                   transform: "translateY(-50%)",
+                  opacity: 0,
                 }}
               />
             );
