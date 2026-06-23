@@ -108,21 +108,14 @@ function DesktopLayout() {
     })();
 
     function tick(p: number) {
-      /* ── Truck X: center → slightly LEFT as left cards appear ── */
-      let tx: number;
-      if (p < 0.45) tx = lerp(0, -2, p / 0.45);
-      else tx = lerp(-2, -14, (p - 0.45) / 0.55);
-
-      let ty: number;
-      ty = lerp(0, -5, p);
+      /* ── Truck: simple continuous slide, like mobile ── */
+      let tx = lerp(-18, 18, p);
+      let ty = lerp(-25, -25, p);
 
       if (canvasRef.current)
         canvasRef.current.style.transform = `translateX(${tx}%) translateY(${ty}%) scale(1)`;
 
-      /* ── Truck rotation — face right, then turn toward left cards ── */
-      let rotY: number;
-      if (p < 0.5) rotY = lerp(Math.PI, Math.PI * 0.15, p / 0.5);
-      else rotY = lerp(Math.PI * 0.15, -Math.PI * 0.1, (p - 0.5) / 0.5);
+      let rotY = lerp(Math.PI, Math.PI * 0.9, p);
 
       scrollStore.truckRotationY = rotY;
       invalidate();
@@ -130,12 +123,12 @@ function DesktopLayout() {
       /* ── Header — always visible ── */
       if (headerRef.current) {
         headerRef.current.style.opacity = "1";
-        headerRef.current.style.transform = `translateY(${lerp(0, -12, p)}px)`;
+        headerRef.current.style.transform = `translateY(${lerp(3, -10, p)}px)`;
       }
 
       /* ── Timeline: opacity + scale follow scroll progress directly ── */
       if (timelineRef.current) {
-        const to = p < 0.05 ? 0 : Math.min(1, (p - 0.05) / 0.12);
+        const to = p < 0.50 ? 0 : Math.min(1, (p - 0.05) / 0.12);
         timelineRef.current.style.opacity = String(to);
       }
       if (lineRef.current) {
