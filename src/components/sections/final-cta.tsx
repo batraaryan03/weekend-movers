@@ -1,6 +1,6 @@
 "use client";
 
-import { Phone, FileText } from "lucide-react";
+import { Phone, FileText, CalendarCheck } from "lucide-react";
 
 export default function FinalCta() {
   return (
@@ -13,15 +13,21 @@ export default function FinalCta() {
           Get in touch today for a free, no-obligation quote. We&apos;re here to make your move as smooth as possible.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="tel:+61416828199">
+          <a href="/book-move">
             <button className="bg-[#FFB624] text-[#011936] hover:bg-yellow-500 font-bold text-lg px-10 py-4 flex items-center justify-center gap-2 transition-colors">
+              <CalendarCheck className="w-5 h-5" />
+              Book Your Move
+            </button>
+          </a>
+          <a href="tel:+61416828199">
+            <button className="bg-[#011936] text-white hover:bg-[#012a52] font-bold text-lg px-10 py-4 flex items-center justify-center gap-2 transition-colors">
               <Phone className="w-5 h-5" />
               Call: +61 416 828 199
             </button>
           </a>
           <button
             onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
-            className="bg-[#011936] text-white hover:bg-[#012a52] font-bold text-lg px-10 py-4 flex items-center justify-center gap-2 transition-colors"
+            className="bg-white text-[#011936] border-2 border-[#011936] hover:bg-gray-50 font-bold text-lg px-10 py-4 flex items-center justify-center gap-2 transition-colors"
           >
             <FileText className="w-5 h-5" />
             Get a Free Quote

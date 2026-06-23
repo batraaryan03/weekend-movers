@@ -182,7 +182,7 @@ function DesktopLayout() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative bg-white mx-0 px-0" style={{ height: "100vh" }}>
+    <section ref={sectionRef} id="services" className="relative bg-white mx-0 px-0" style={{ height: "100vh" }}>
       <div className="sticky top-0 h-screen overflow-hidden">
         {/* Header */}
         <div ref={headerRef} className="absolute top-0 left-0 right-0 h-[20%] flex items-center justify-center z-20">
@@ -337,6 +337,7 @@ function MobileLayout({ isMobile, serviceLayout = true, direction = "left" }: { 
     <div className="overflow-hidden">
       {serviceLayout && (
         <section
+          id="services"
           className="relative bg-white mx-0 px-0"
           style={{ minHeight: serviceLayout ? "auto" : "auto" }}
         >

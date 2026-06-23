@@ -1,16 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Phone, ChevronDown, Home, DollarSign, Truck, Image, Star, Mail, X, Menu } from "lucide-react";
+import { Phone, Home, DollarSign, Truck, Image, Star, Mail, X, Menu, CalendarCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
-  { href: "#home", label: "Home", icon: Home },
-  { href: "#pricing", label: "Pricing", icon: DollarSign },
-  { href: "#services", label: "Services", icon: Truck },
-  { href: "#gallery", label: "Gallery", icon: Image },
-  { href: "#reviews", label: "Reviews", icon: Star },
-  { href: "#contact", label: "Contact", icon: Mail },
+  { href: "/", label: "Home", icon: Home },
+  { href: "/#pricing", label: "Pricing", icon: DollarSign },
+  { href: "/#services", label: "Services", icon: Truck },
+  { href: "/#gallery", label: "Gallery", icon: Image },
+  { href: "/#reviews", label: "Reviews", icon: Star },
+  { href: "/contact", label: "Contact", icon: Mail, isPage: true },
 ];
 
 export default function Header() {
@@ -23,9 +23,11 @@ export default function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const scrollTo = (href: string) => {
+  const handleNavClick = (e: React.MouseEvent, link: typeof navLinks[0]) => {
     setMenuOpen(false);
-    const id = href.replace("#", "").toLowerCase();
+    if (link.isPage) return;
+    e.preventDefault();
+    const id = link.href.replace("/#", "").replace("#", "");
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -41,7 +43,7 @@ export default function Header() {
 
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
-        <a href="#home" className="flex items-center gap-2.5" onClick={(e) => { e.preventDefault(); scrollTo("#home"); }}>
+        <a href="/" className="flex items-center gap-2.5">
           <img src="/assets/logo.png" alt="Weekend Movers" className="h-9 w-auto" />
           <span className="font-bold text-lg text-[#011936] hidden sm:block tracking-tight">
             Weekend Movers
@@ -52,9 +54,9 @@ export default function Header() {
         <nav className="hidden md:flex items-center gap-1">
           {navLinks.map((link) => (
             <a
-              key={link.href}
+              key={link.label}
               href={link.href}
-              onClick={(e) => { e.preventDefault(); scrollTo(link.href); }}
+              onClick={(e) => handleNavClick(e, link)}
               className="text-sm font-medium text-[#011936] hover:text-[#FFB624] px-3 py-2 transition-colors"
             >
               {link.label}
@@ -62,8 +64,12 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* Call button + mobile menu toggle */}
+        {/* Call + Book Move buttons + mobile menu toggle */}
         <div className="flex items-center gap-3">
+          <a href="/book-move" className="hidden md:inline-flex items-center gap-2 bg-[#FFB624] text-[#011936] text-sm font-bold px-4 py-2.5 hover:bg-yellow-500 transition-colors">
+            <CalendarCheck className="w-4 h-4" />
+            Book Move
+          </a>
           <a href="tel:+61416828199" className="hidden md:inline-flex items-center gap-2 bg-[#011936] text-white text-sm font-bold px-4 py-2.5 hover:bg-[#012a52] transition-colors">
             <Phone className="w-4 h-4" />
             Call Now
@@ -84,15 +90,22 @@ export default function Header() {
           <div className="max-w-5xl mx-auto px-4 py-3 space-y-1">
             {navLinks.map((link) => (
               <a
-                key={link.href}
+                key={link.label}
                 href={link.href}
-                onClick={(e) => { e.preventDefault(); scrollTo(link.href); }}
+                onClick={(e) => handleNavClick(e, link)}
                 className="flex items-center gap-3 px-3 py-2.5 text-[#011936] hover:bg-gray-50 transition-colors"
               >
                 <link.icon className="w-4 h-4 text-[#FFB624]" />
                 <span className="text-sm font-medium">{link.label}</span>
               </a>
             ))}
+            <a
+              href="/book-move"
+              className="flex items-center gap-3 px-3 py-2.5 bg-[#FFB624] text-[#011936] font-bold text-sm mt-2"
+            >
+              <CalendarCheck className="w-4 h-4" />
+              Book Your Move
+            </a>
             <a
               href="tel:+61416828199"
               className="flex items-center gap-3 px-3 py-2.5 bg-[#011936] text-white font-bold text-sm mt-2"
