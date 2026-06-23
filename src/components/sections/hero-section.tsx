@@ -80,13 +80,17 @@ export default function HeroSection() {
           <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-xl border border-gray-200/60 bg-black">
             <video
               autoPlay
-              muted
-              loop
+              // muted
+              // loop
+              controls
               playsInline
               preload="auto"
               className="absolute inset-0 w-full h-full object-cover"
             >
-              <source src="/truck-video.mp4" type="video/mp4" />
+              <source
+                src="/special/special-video-home-screen.mp4"
+                type="video/mp4"
+              />
             </video>
           </div>
         </div>
