@@ -23,26 +23,31 @@ const services = [
     icon: Home,
     title: "Local House Moves",
     desc: "Complete residential moving services across Melbourne. We handle everything from small apartments to large family homes with care and professionalism.",
+    img: "/services/01-local-house-moves.png",
   },
   {
     icon: Building2,
     title: "Apartment Moves",
     desc: "Specialized in apartment and unit relocations. We navigate stairs, elevators, and tight spaces with ease to ensure a smooth move.",
+    img: "/services/02-apartment-moves.png",
   },
   {
     icon: Briefcase,
     title: "Office Relocations",
     desc: "Professional office moving services that minimize downtime. We handle furniture, equipment, and documents with efficiency and care.",
+    img: "/services/03-office-relocations.png",
   },
   {
     icon: Package,
     title: "Packing & Unpacking",
     desc: "Full packing services available with quality materials. We pack, move, and unpack your belongings, saving you time and stress.",
+    img: "/services/04-packing-unpacking.png",
   },
   {
     icon: Wrench,
     title: "Furniture Assembly",
     desc: "Expert furniture disassembly and reassembly included. We handle complex furniture pieces to ensure safe transport and proper setup.",
+    img: "/services/05-furniture-assembly.png",
   },
 ];
 
@@ -253,7 +258,8 @@ function DesktopLayout() {
             const pos = cardPositions[i];
             const right = pos.side === "right";
             const center = pos.side === "center";
-            const posStyle: React.CSSProperties = { top: `${pos.top}%`, width: "clamp(220px, 20vw, 320px)", maxWidth: "320px" };
+            const left = pos.side === "left";
+            const posStyle: React.CSSProperties = { top: `${pos.top}%`, maxWidth: "420px" };
             if (right) posStyle.left = "calc(50% + 42px)";
             else if (center) {
               posStyle.left = "50%";
@@ -263,9 +269,31 @@ function DesktopLayout() {
             const Icon = s.icon;
             return (
               <div key={s.title} className="absolute" style={posStyle}>
-                <div ref={(el) => { cardRefs.current[i] = el; }} style={{ opacity: 0 }} className={`bg-white tracking-wide ${center ? "mt-2.5 text-center" : "ml-5 translate-y-[-15px] text-justify"}`}>
-                  <h3 className="text-lg font-bold text-[#011936] mb-2 flex items-center gap-2"><Icon className="w-5 h-5 text-[#011936]" />{s.title}</h3>
-                  <p className="text-gray-700 text-base leading-relaxed">{s.desc}</p>
+                <div
+                  ref={(el) => {
+                    cardRefs.current[i] = el;
+                  }}
+                  style={{ opacity: 0 }}
+                  className={`bg-white tracking-wide flex ${center ? "mt-2.5 text-center flex-col items-center" : right ? "flex-row items-start gap-4 ml-5 translate-y-[-15px]" : "flex-row-reverse items-start gap-4 translate-y-[-15px]"}`}
+                >
+                  <div className={center ? "mb-3" : right ? "" : ""}>
+                    <h3 className="text-lg font-bold text-[#011936] mb-2 flex items-center gap-2">
+                      <Icon className="w-3 h-3 text-[#011936]" />
+                      {s.title}
+                    </h3>
+                    <p className="text-gray-700 text-xs leading-relaxed">
+                      {s.desc}
+                    </p>
+                  </div>
+                  <img
+                    src={s.img}
+                    alt={s.title}
+                    className={
+                      center
+                        ? "w-full h-auto mb-10"
+                        : "w-56  h-56 object-cover shrink-0"
+                    }
+                  />
                 </div>
               </div>
             );
@@ -339,7 +367,7 @@ function MobileLayout({ isMobile, serviceLayout = true, direction = "left" }: { 
             url="/truck-special-model.glb"
             width="100%"
             height="100%"
-            defaultZoom={2.75}
+            defaultZoom={2.25}
             enableAutoRotate={false}
             enableTouchRotate={false}
             enableMouseParallax={false}
@@ -365,13 +393,22 @@ function MobileLayout({ isMobile, serviceLayout = true, direction = "left" }: { 
             const Icon = s.icon;
             return (
               <div key={s.title} className="bg-white tracking-wide">
-                <h3 className="text-lg font-bold text-[#011936] mb-2 flex items-center gap-2">
-                  <Icon className="w-5 h-5 text-[#011936] shrink-0" />
-                  {s.title}
-                </h3>
-                <p className="text-gray-700 text-base leading-relaxed">
-                  {s.desc}
-                </p>
+                <div className="flex items-start gap-4">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-[#011936] mb-2 flex items-center gap-2">
+                      <Icon className="w-3 h-3 text-[#011936] shrink-0" />
+                      {s.title}
+                    </h3>
+                    <p className="text-gray-700 text-xs leading-relaxed">
+                      {s.desc}
+                    </p>
+                  </div>
+                  <img
+                    src={s.img}
+                    alt={s.title}
+                    className="w-48 h-24 object-cover shrink-0"
+                  />
+                </div>
               </div>
             );
           })}
