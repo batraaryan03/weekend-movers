@@ -300,9 +300,9 @@ function DesktopLayout() {
             const Icon = s.icon;
             return (
               <div key={s.title} className="absolute" style={posStyle}>
-                <div ref={(el) => { cardRefs.current[i] = el; }} style={{ opacity: 0 }}>
-                  <h3 className="text-sm font-bold text-[#011936] mb-1.5 flex items-center gap-1.5"><Icon className="w-4 h-4 text-[#011936]" />{s.title}</h3>
-                  <p className="text-gray-400 text-xs leading-relaxed">{s.desc}</p>
+                <div ref={(el) => { cardRefs.current[i] = el; }} style={{ opacity: 0 }} className="bg-white ml-5 translate-y-[-15px] text-justify tracking-wide">
+                  <h3 className="text-lg font-bold text-[#011936] mb-2 flex items-center gap-2"><Icon className="w-5 h-5 text-[#011936]" />{s.title}</h3>
+                  <p className="text-gray-700 text-base leading-relaxed">{s.desc}</p>
                 </div>
               </div>
             );
@@ -362,13 +362,13 @@ function MobileLayout({ isMobile, serviceLayout = true, direction = "left" }: { 
       </div>
 
       {serviceLayout && (
-        <div className="px-4 pb-12 space-y-4 mx-0">
+        <div className="px-4 pb-12 space-y-6 mx-0">
           {services.map((s, i) => {
             const Icon = s.icon;
             return (
-              <div key={s.title} className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
-                <h3 className="text-sm font-bold text-[#011936] mb-1 flex items-center gap-2"><Icon className="w-4 h-4 text-[#011936] shrink-0" />{s.title}</h3>
-                <p className="text-gray-400 text-xs leading-relaxed">{s.desc}</p>
+              <div key={s.title} className="bg-white p-6 tracking-wide">
+                <h3 className="text-lg font-bold text-[#011936] mb-2 flex items-center gap-2"><Icon className="w-5 h-5 text-[#011936] shrink-0" />{s.title}</h3>
+                <p className="text-gray-700 text-base leading-relaxed">{s.desc}</p>
               </div>
             );
           })}
