@@ -1,7 +1,5 @@
 "use client";
 
-import { GlobeDemo } from "../ui/globe-demo";
-
 const suburbs = [
   "Brunswick", "Richmond", "Southbank", "Carlton", "St Kilda", "Docklands",
   "Footscray", "Dandenong", "Werribee", "Point Cook", "Craigieburn", "Preston",
@@ -50,9 +48,6 @@ export default function ServiceAreas() {
             No matter where you&apos;re located in Melbourne, Weekend Movers is ready to deliver safe, efficient and professional moving services.
           </p>
         </div>
-      </div>
-      <div className="relative z-10 -mt-8">
-        <GlobeDemo />
       </div>
     </section>
   );
