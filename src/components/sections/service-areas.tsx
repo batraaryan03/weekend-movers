@@ -48,6 +48,13 @@ export default function ServiceAreas() {
             No matter where you&apos;re located in Melbourne, Weekend Movers is ready to deliver safe, efficient and professional moving services.
           </p>
         </div>
+        <div className="mt-12 flex justify-center">
+          <img
+            src="/globe-melbourne.png"
+            alt="Globe highlighting Melbourne, Australia"
+            className="w-full max-w-3xl h-auto"
+          />
+        </div>
       </div>
     </section>
   );
