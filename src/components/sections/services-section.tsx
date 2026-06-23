@@ -52,7 +52,7 @@ const cardPositions = [
   { side: "right" as const, top: 52 },  // 2
   { side: "left" as const, top: 28 },   // 3
   { side: "left" as const, top: 52 },   // 4
-  { side: "left" as const, top: 78 },   // 5 — moved to left side
+  { side: "center" as const, top: 82 }, // 5 — bottom center
 ];
 
 /* ── Desktop: Scroll thresholds for card groups ── */
@@ -100,7 +100,7 @@ function DesktopLayout() {
           trigger: section,
           start: "top 75%",
           end: "bottom 75%",
-          scrub: 0.8,
+          scrub: 1.3,
           markers: true,
           onUpdate: (self) => tick(self.progress),
         });
@@ -128,7 +128,7 @@ function DesktopLayout() {
 
       /* ── Timeline: opacity + scale follow scroll progress directly ── */
       if (timelineRef.current) {
-        const to = p < 0.50 ? 0 : Math.min(1, (p - 0.05) / 0.12);
+        const to = p < 0.05 ? 0 : Math.min(1, (p - 0.05) / 0.12);
         timelineRef.current.style.opacity = String(to);
       }
       if (lineRef.current) {
@@ -178,7 +178,7 @@ function DesktopLayout() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative bg-white mx-0 px-0" style={{ height: "75vh" }}>
+    <section ref={sectionRef} className="relative bg-white mx-0 px-0" style={{ height: "100vh" }}>
       <div className="sticky top-0 h-screen overflow-hidden">
         {/* Header */}
         <div ref={headerRef} className="absolute top-0 left-0 right-0 h-[20%] flex items-center justify-center z-20">
@@ -197,7 +197,7 @@ function DesktopLayout() {
         {/* Timeline + cards overlay */}
         <div ref={timelineRef} className="absolute inset-0 pointer-events-none z-10" style={{ opacity: 0 }}>
           {/* Vertical golden line */}
-          <div ref={lineRef} className="absolute left-1/2 -translate-x-1/2 w-[3px] bg-golden origin-top" style={{ top: "20%", bottom: "4%", transform: "scaleY(0)" }} />
+          <div ref={lineRef} className="absolute left-1/2 -translate-x-1/2 w-[3px] bg-golden origin-top" style={{ top: "28%", bottom: "-2%", transform: "scaleY(0)" }} />
 
           {/* Dots — start invisible, opacity controlled by tick() */}
           {cardPositions.map((pos, i) => {
@@ -222,6 +222,7 @@ function DesktopLayout() {
 
           {/* Branch lines — start invisible, opacity controlled by tick() */}
           {cardPositions.map((pos, i) => {
+            if (pos.side === "center") return null;
             const right = pos.side === "right";
             const isLeft = pos.side === "left";
             const isRight = pos.side === "right";
@@ -252,13 +253,18 @@ function DesktopLayout() {
           {services.map((s, i) => {
             const pos = cardPositions[i];
             const right = pos.side === "right";
+            const center = pos.side === "center";
             const posStyle: React.CSSProperties = { top: `${pos.top}%`, width: "clamp(220px, 20vw, 320px)", maxWidth: "320px" };
             if (right) posStyle.left = "calc(50% + 42px)";
+            else if (center) {
+              posStyle.left = "50%";
+              posStyle.transform = "translateX(-50%)";
+            }
             else posStyle.right = "calc(50% + 42px)";
             const Icon = s.icon;
             return (
               <div key={s.title} className="absolute" style={posStyle}>
-                <div ref={(el) => { cardRefs.current[i] = el; }} style={{ opacity: 0 }} className="bg-transparent ml-5 translate-y-[-15px] text-justify tracking-wide">
+                <div ref={(el) => { cardRefs.current[i] = el; }} style={{ opacity: 0 }} className={`bg-white tracking-wide ${center ? "mt-4 text-center" : "ml-5 translate-y-[-15px] text-justify"}`}>
                   <h3 className="text-lg font-bold text-[#011936] mb-2 flex items-center gap-2"><Icon className="w-5 h-5 text-[#011936]" />{s.title}</h3>
                   <p className="text-gray-700 text-base leading-relaxed">{s.desc}</p>
                 </div>
