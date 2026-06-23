@@ -101,7 +101,7 @@ function DesktopLayout() {
           trigger: section,
           start: "top top",
           end: "bottom bottom",
-          scrub: 0.6,
+          scrub: 2.6,
           onUpdate: (self) => tick(self.progress),
         });
       });
@@ -233,7 +233,7 @@ function DesktopLayout() {
 
         {/* 3D canvas */}
         <div ref={canvasRef} className="absolute left-0 right-0 top-[20%] bottom-0 z-0" style={{ transformOrigin: "center center", willChange: "transform" }}>
-          <ModelViewer url="/truck-special-model.glb" width="100%" height="100%" defaultZoom={2.5} enableMouseParallax />
+          <ModelViewer url="/truck-special-model.glb" width="100%" height="80%" defaultZoom={2.5} enableMouseParallax />
         </div>
 
         {/* Timeline + cards overlay */}
