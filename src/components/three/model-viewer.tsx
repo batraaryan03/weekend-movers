@@ -62,7 +62,7 @@ interface ModelInnerProps {
 
 const ModelInner: FC<ModelInnerProps> = ({
   url,
-  enableMouseParallax,
+  enableMouseParallax = false,
   onLoaded,
   enableAutoRotate = false,
   autoRotateSpeed = 0.008,
@@ -119,7 +119,8 @@ const ModelInner: FC<ModelInnerProps> = ({
 
     // Find the DOM canvas element by traversing up from R3F root
     const domEl = camera.parent?.parent?.parent?.parent?.parent?.parent;
-    const canvas = domEl instanceof HTMLElement ? domEl.querySelector("canvas") : null;
+    const canvas =
+      domEl instanceof HTMLElement ? domEl.querySelector("canvas") : null;
     if (!canvas) return;
 
     const onStart = (e: TouchEvent) => {
@@ -165,15 +166,15 @@ const ModelInner: FC<ModelInnerProps> = ({
     const g = outerRef.current;
     if (!g) return;
 
-    // Ease parallax
-    cPar.current.x += (tPar.current.x - cPar.current.x) * PARALLAX_EASE;
-    cPar.current.y += (tPar.current.y - cPar.current.y) * PARALLAX_EASE;
+    // // Ease parallax
+    // cPar.current.x += (tPar.current.x - cPar.current.x) * PARALLAX_EASE;
+    // cPar.current.y += (tPar.current.y - cPar.current.y) * PARALLAX_EASE;
 
     // Position at pivot + parallax offset
-    const ndc = pivotW.current.clone().project(camera);
-    ndc.x += cPar.current.x;
-    ndc.y += cPar.current.y;
-    g.position.copy(ndc.unproject(camera));
+    // const ndc = pivotW.current.clone().project(camera);
+    // ndc.x += cPar.current.x;
+    // ndc.y += cPar.current.y;
+    // g.position.copy(ndc.unproject(camera));
 
     // Fixed rotation overrides everything else
     if (fixedRotationY !== undefined) {
