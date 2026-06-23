@@ -1,6 +1,6 @@
 "use client";
 
-import { Phone, FileText, CalendarCheck } from "lucide-react";
+import { Phone, FileText } from "lucide-react";
 
 export default function CtaStrip() {
   return (
@@ -21,14 +21,8 @@ export default function CtaStrip() {
           <span className="text-white">Call Weekend Movers now</span>
         </h2>
         <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-          <a href="/book-move">
-            <button className="bg-[#011936] text-white hover:bg-[#012a52] font-bold text-xl px-10 py-8 flex items-center gap-3 transition-colors">
-              <CalendarCheck className="h-7 w-7" />
-              Book Your Move
-            </button>
-          </a>
           <a href="tel:+61416828199">
-            <button className="bg-white text-[#011936] border-2 border-[#011936] hover:bg-gray-50 font-bold text-xl px-10 py-8 flex items-center gap-3 transition-colors">
+            <button className="bg-[#011936] text-white hover:bg-[#012a52] font-bold text-xl px-10 py-8 flex items-center gap-3 transition-colors">
               <Phone className="h-7 w-7" />
               Call: +61 416 828 199
             </button>

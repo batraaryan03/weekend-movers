@@ -3,6 +3,8 @@
 import { useState, FormEvent } from "react";
 import { Phone, Mail, MapPin, Clock, Send, CheckCircle, AlertCircle } from "lucide-react";
 import Link from "next/link";
+import Header from "@/components/sections/header";
+import Footer from "@/components/sections/footer";
 
 export default function ContactPage() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -33,7 +35,9 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <>
+      <Header />
+      <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="bg-[#011936] py-20">
         <div className="max-w-6xl mx-auto px-4 text-center">
@@ -178,6 +182,8 @@ export default function ContactPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+      <Footer />
+    </>
   );
 }

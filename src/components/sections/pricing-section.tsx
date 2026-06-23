@@ -63,15 +63,17 @@ export default function PricingSection() {
                   </li>
                 ))}
               </ul>
-              <button
-                className={`w-full font-bold text-lg py-4 transition-colors ${
-                  plan.popular
-                    ? "bg-[#FFC107] text-[#0d254c] hover:bg-[#FFD54F]"
-                    : "bg-[#0d254c] text-white hover:bg-[#012a52]"
-                }`}
-              >
-                Book This Truck
-              </button>
+              <a href="/book-move" className="block">
+                <button
+                  className={`w-full font-bold text-lg py-4 transition-colors ${
+                    plan.popular
+                      ? "bg-[#FFC107] text-[#0d254c] hover:bg-[#FFD54F]"
+                      : "bg-[#0d254c] text-white hover:bg-[#012a52]"
+                  }`}
+                >
+                  Book This Truck
+                </button>
+              </a>
             </div>
           ))}
         </StaggerReveal>
