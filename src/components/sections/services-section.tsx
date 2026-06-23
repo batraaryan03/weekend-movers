@@ -52,7 +52,7 @@ const cardPositions = [
   { side: "right" as const, top: 52 },  // 2
   { side: "left" as const, top: 28 },   // 3
   { side: "left" as const, top: 52 },   // 4
-  { side: "center" as const, top: 82 }, // 5 — bottom center
+  { side: "center" as const, top: 74 }, // 5 — bottom center
 ];
 
 /* ── Desktop: Scroll thresholds for card groups ── */
@@ -101,7 +101,6 @@ function DesktopLayout() {
           start: "top 75%",
           end: "bottom 75%",
           scrub: 1.3,
-          markers: true,
           onUpdate: (self) => tick(self.progress),
         });
       });
@@ -264,7 +263,7 @@ function DesktopLayout() {
             const Icon = s.icon;
             return (
               <div key={s.title} className="absolute" style={posStyle}>
-                <div ref={(el) => { cardRefs.current[i] = el; }} style={{ opacity: 0 }} className={`bg-white tracking-wide ${center ? "mt-4 text-center" : "ml-5 translate-y-[-15px] text-justify"}`}>
+                <div ref={(el) => { cardRefs.current[i] = el; }} style={{ opacity: 0 }} className={`bg-white tracking-wide ${center ? "mt-2.5 text-center" : "ml-5 translate-y-[-15px] text-justify"}`}>
                   <h3 className="text-lg font-bold text-[#011936] mb-2 flex items-center gap-2"><Icon className="w-5 h-5 text-[#011936]" />{s.title}</h3>
                   <p className="text-gray-700 text-base leading-relaxed">{s.desc}</p>
                 </div>
