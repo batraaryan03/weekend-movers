@@ -48,18 +48,17 @@ const services = [
 
 /* ── Desktop: Card layout positions ── */
 const cardPositions = [
-  { side: "right" as const, top: 28 },
-  { side: "right" as const, top: 52 },
-  { side: "left" as const, top: 28 },
-  { side: "left" as const, top: 52 },
-  { side: "center" as const, top: 78 },
+  { side: "right" as const, top: 28 },  // 1
+  { side: "right" as const, top: 52 },  // 2
+  { side: "left" as const, top: 28 },   // 3
+  { side: "left" as const, top: 52 },   // 4
+  { side: "left" as const, top: 78 },   // 5 — moved to left side
 ];
 
 /* ── Desktop: Scroll thresholds for card groups ── */
 const groupThresholds = [
-  { start: 0.25, cards: [0, 1] },
-  { start: 0.52, cards: [2, 3] },
-  { start: 0.76, cards: [4] },
+  { start: 0.25, cards: [0, 1] },      // right cards appear
+  { start: 0.52, cards: [2, 3, 4] },   // left cards appear (all three together)
 ];
 
 function lerp(a: number, b: number, t: number) {
@@ -106,7 +105,7 @@ function DesktopLayout() {
     })();
 
     function tick(p: number) {
-      /* ── Truck X: center → LEFT (-16%) → RIGHT (+24%) ── */
+      /* ── Truck X: center → LEFT (-24%) → RIGHT (+24%) ── */
       let tx: number;
       if (p < 0.05) tx = 0;
       else if (p < 0.48) tx = lerp(0, -24, (p - 0.05) / 0.26);
@@ -128,7 +127,7 @@ function DesktopLayout() {
       if (p < 0.05) {
         rotY = lerp(Math.PI, Math.PI, p / 0.05);
       } else if (p < 0.48) {
-        rotY = lerp(Math.PI, Math.PI * 0.2, (p - 0.05 ) / 0.26);
+        rotY = lerp(Math.PI, Math.PI * 0.2, (p - 0.05) / 0.26);
       } else if (p < 0.72) {
         rotY = lerp(Math.PI * 0.2, -Math.PI * 0.15, (p - 0.48) / 0.24);
       } else {
@@ -151,15 +150,12 @@ function DesktopLayout() {
         timelineRef.current.style.opacity = String(to);
       }
       if (lineRef.current) {
-        // line grows in sync with truck movement: tx goes 0 → -16 → 24
-        // normalized: 0 → 0.8 → 1.0
         const lineProgress = Math.min(1, Math.max(0, (tx + 16) / 40));
         lineRef.current.style.transform = `scaleY(${lineProgress})`;
       }
 
       /* ── Cards ── */
       const isTruckMovingRight = p >= 0.48;
-      const leftDisappear = p >= 0.74 ? Math.min(1, (p - 0.74) / 0.06) : 0;
 
       for (const group of groupThresholds) {
         for (const ci of group.cards) {
@@ -176,9 +172,8 @@ function DesktopLayout() {
           }
 
           const cp = p > group.start ? Math.min(1, (p - group.start) / 0.06) : 0;
-          const opacity = isLeftCard ? Math.max(0, cp - leftDisappear) : cp;
-          el.style.opacity = String(opacity);
-          el.style.transform = `translateY(${(1 - opacity) * 24}px)`;
+          el.style.opacity = String(cp);
+          el.style.transform = `translateY(${(1 - cp) * 24}px)`;
         }
       }
 
@@ -189,14 +184,6 @@ function DesktopLayout() {
         const rv = String(Math.max(0, 1 - rightFadeOut));
         if (rb) rb.style.opacity = rv;
         if (rd) rd.style.opacity = rv;
-      }
-
-      for (let j = 0; j < 2; j++) {
-        const lb = leftBranchRefs.current[j];
-        const ld = leftDotRefs.current[j];
-        const lv = String(Math.max(0, 1 - leftDisappear));
-        if (lb) lb.style.opacity = lv;
-        if (ld) ld.style.opacity = lv;
       }
     }
 
@@ -209,6 +196,7 @@ function DesktopLayout() {
   return (
     <section ref={sectionRef} className="relative bg-white mx-0 px-0" style={{ height: "400vh" }}>
       <div className="sticky top-0 h-screen overflow-hidden">
+        {/* Header */}
         <div ref={headerRef} className="absolute top-0 left-0 right-0 h-[20%] flex items-center justify-center z-20">
           <div className="text-center px-4">
             <p className="text-golden font-semibold text-xs md:text-sm uppercase tracking-[0.22em] mb-3">What We Offer</p>
@@ -217,37 +205,56 @@ function DesktopLayout() {
           </div>
         </div>
 
+        {/* 3D canvas */}
         <div ref={canvasRef} className="absolute left-0 right-0 top-[20%] bottom-0 z-0" style={{ transformOrigin: "center center", willChange: "transform" }}>
           <ModelViewer url="/truck-special-model.glb" width="100%" height="100%" defaultZoom={2.5} enableMouseParallax />
         </div>
 
+        {/* Timeline + cards overlay */}
         <div ref={timelineRef} className="absolute inset-0 pointer-events-none z-10" style={{ opacity: 0 }}>
+          {/* Vertical golden line */}
           <div ref={lineRef} className="absolute left-1/2 -translate-x-1/2 w-[3px] bg-golden origin-top" style={{ top: "20%", bottom: "4%", transform: "scaleY(0)" }} />
 
+          {/* Dots and branch lines */}
           {cardPositions.map((pos, i) => {
             const isLeft = pos.side === "left";
             const isRight = pos.side === "right";
-            const leftIdx = isLeft ? (i === 2 ? 0 : 1) : -1;
+            const leftIdx = isLeft ? (i === 2 ? 0 : i === 3 ? 1 : 2) : -1;
             const rightIdx = isRight ? (i === 0 ? 0 : 1) : -1;
             return (
-              <div key={`d${i}`} ref={isLeft ? (el) => { leftDotRefs.current[leftIdx] = el; } : isRight ? (el) => { rightDotRefs.current[rightIdx] = el; } : undefined} className="absolute w-3.5 h-3.5 bg-golden rounded-[2px] z-10" style={{ top: `${pos.top}%`, left: "50%", transform: "translate(-50%, -50%)" }} />
+              <div
+                key={`d${i}`}
+                ref={isLeft ? (el) => { leftDotRefs.current[leftIdx] = el; } : isRight ? (el) => { rightDotRefs.current[rightIdx] = el; } : undefined}
+                className="absolute w-3.5 h-3.5 bg-golden rounded-[2px] z-10"
+                style={{ top: `${pos.top}%`, left: "50%", transform: "translate(-50%, -50%)" }}
+              />
             );
           })}
 
           {cardPositions.map((pos, i) => {
-            if (pos.side === "center") return null;
             const right = pos.side === "right";
             const isLeft = pos.side === "left";
             const isRight = pos.side === "right";
-            const leftIdx = isLeft ? (i === 2 ? 0 : 1) : -1;
+            const leftIdx = isLeft ? (i === 2 ? 0 : i === 3 ? 1 : 2) : -1;
             const rightIdx = isRight ? (i === 0 ? 0 : 1) : -1;
             return (
-              <div key={`b${i}`} ref={isLeft ? (el) => { leftBranchRefs.current[leftIdx] = el; } : isRight ? (el) => { rightBranchRefs.current[rightIdx] = el; } : undefined} className="absolute h-[2px] bg-golden" style={{ top: `${pos.top}%`, width: "36px", left: right ? "calc(50% + 7px)" : undefined, right: right ? undefined : "calc(50% + 7px)", transform: "translateY(-50%)" }} />
+              <div
+                key={`b${i}`}
+                ref={isLeft ? (el) => { leftBranchRefs.current[leftIdx] = el; } : isRight ? (el) => { rightBranchRefs.current[rightIdx] = el; } : undefined}
+                className="absolute h-[2px] bg-golden"
+                style={{
+                  top: `${pos.top}%`,
+                  width: "36px",
+                  left: right ? "calc(50% + 7px)" : undefined,
+                  right: right ? undefined : "calc(50% + 7px)",
+                  transform: "translateY(-50%)",
+                }}
+              />
             );
           })}
 
+          {/* Service cards */}
           {services.map((s, i) => {
-            if (i === 4) return null;
             const pos = cardPositions[i];
             const right = pos.side === "right";
             const posStyle: React.CSSProperties = { top: `${pos.top}%`, width: "clamp(220px, 20vw, 320px)", maxWidth: "320px" };
@@ -263,15 +270,6 @@ function DesktopLayout() {
               </div>
             );
           })}
-
-          <div className="absolute" style={{ top: "78%", left: "50%", transform: "translateX(-50%)", width: "clamp(220px, 20vw, 320px)", maxWidth: "320px" }}>
-            <div ref={(el) => { cardRefs.current[4] = el; }} style={{ opacity: 0 }}>
-              <div className="bg-white px-5 py-4 rounded">
-                <h3 className="text-sm font-bold text-[#011936] mb-1.5 flex items-center gap-1.5"><Wrench className="w-4 h-4 text-[#011936]" />{services[4].title}</h3>
-                <p className="text-gray-400 text-xs leading-relaxed ml-[22px]">{services[4].desc}</p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </section>
